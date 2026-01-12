@@ -3,78 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAT Reading & Writing Strategy Nexus</title>
+    <title>SAT Strategy Nexus + Progress</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         /* Base Settings */
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #f8fafc; 
-            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+            -webkit-tap-highlight-color: transparent;
         }
+        .serif-text { font-family: 'Merriweather', serif; }
 
-        /* Chart Container - Mobile First Logic */
+        /* Chart Container */
         .chart-container {
             position: relative;
             width: 100%;
-            height: 300px; /* Default height */
+            height: 300px;
         }
-        
-        /* Adjust chart height for larger screens */
         @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+            .chart-container { height: 350px; }
         }
 
-        /* Active State Styling */
+        /* Navigation */
         .theme-btn.active {
             background-color: #eff6ff;
             color: #2563eb;
             border-left-color: #2563eb;
-            font-weight: 600;
+            font-weight: 700;
         }
-        
-        /* Scrollbar Styling for Desktop Sidebar */
         .sidebar-scroll::-webkit-scrollbar { width: 6px; }
         .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
         .sidebar-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
-        /* Smooth Scrolling */
+        /* Quiz Styles */
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        .option-btn:hover:not(:disabled) { background-color: #f1f5f9; transform: translateX(4px); }
+        .option-btn.selected { border-color: #3b82f6; background-color: #eff6ff; }
+        .option-btn.correct { border-color: #10b981; background-color: #ecfdf5; color: #047857; }
+        .option-btn.incorrect { border-color: #f43f5e; background-color: #fff1f2; color: #be123c; }
+
+        /* Brainstorming Card */
+        .brainstorm-card {
+            transition: all 0.3s ease;
+            min-height: 200px;
+        }
+        .brainstorm-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        /* Strategy Box Formatting */
+        .strat-box h4 { margin-top: 1rem; margin-bottom: 0.25rem; color: #1e3a8a; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; }
+        .strat-box h4:first-child { margin-top: 0; }
+        .strat-box ul { list-style-type: none; padding-left: 0; margin-bottom: 0.5rem; }
+        .strat-box li { position: relative; padding-left: 1rem; margin-bottom: 0.25rem; line-height: 1.4; font-size: 0.9rem; }
+        .strat-box li::before { content: "•"; position: absolute; left: 0; color: #3b82f6; font-weight: bold; }
+        .strat-list-red li::before { color: #f43f5e; }
+        .focus-tag { display: inline-block; background: #f1f5f9; color: #64748b; font-size: 0.7rem; padding: 2px 6px; rounded: 4px; font-weight: 600; margin-bottom: 0.5rem; }
+
         html { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Application Structure Plan:
-         MOBILE UPDATE:
-         1. Layout: Switched from "h-screen overflow-hidden" to "min-h-screen" to allow natural scrolling on iOS.
-            This prevents the bottom address bar from hiding content.
-         2. Navigation: Sticky Sidebar for Desktop, Standard document flow for Mobile to ensure stability.
-         3. Touch: Larger hit areas for all interactive elements.
-    -->
-    
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <!-- Chosen Palette: "Smart Blue" - Consistent with previous version. -->
-
-    <!-- Header: Sticky on Mobile for easy access to status -->
+    <!-- Header -->
     <header class="bg-white border-b border-slate-200 p-4 shadow-sm sticky top-0 z-50 md:relative">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
-            <!-- Logo Section -->
-            <div class="flex items-center gap-3 w-full md:w-auto">
+            <div class="flex items-center gap-3 w-full md:w-auto cursor-pointer" onclick="location.reload()">
                 <div class="bg-blue-600 text-white font-bold rounded-lg w-9 h-9 flex items-center justify-center text-lg shadow-sm">S</div>
                 <div class="leading-tight">
                     <h1 class="font-bold text-lg md:text-xl text-slate-900">SAT Strategy Nexus</h1>
-                    <p class="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide">Reading & Writing Mastery</p>
+                    <p class="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide">Reading, Writing & Essay Lab</p>
                 </div>
             </div>
             
-            <!-- Progress Section -->
             <div class="w-full md:w-1/3 flex flex-col gap-1">
                 <div class="flex justify-between text-xs font-semibold text-slate-600">
-                    <span>Mastery Progress</span>
+                    <span>Module Mastery</span>
                     <span id="progress-text">0%</span>
                 </div>
                 <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
@@ -84,140 +88,201 @@
         </div>
     </header>
 
-    <!-- Main Wrapper -->
+    <!-- Main Layout -->
     <div class="flex flex-col md:flex-row flex-1 max-w-7xl mx-auto w-full">
         
-        <!-- Mobile Navigation (Dropdown) - Visible only on small screens -->
+        <!-- Mobile Nav -->
         <div class="md:hidden w-full bg-white border-b border-slate-200 p-4 sticky top-[73px] z-40 shadow-sm">
-            <label for="mobile-nav" class="block text-xs font-bold text-slate-500 uppercase mb-1">Select Topic</label>
-            <div class="relative">
-                <select id="mobile-nav" class="w-full p-3 pr-8 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
-                    <!-- Options injected by JS -->
-                </select>
-                <!-- Custom Arrow for Select -->
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
-                    <span class="text-xs">&#9660;</span>
-                </div>
-            </div>
+            <select id="mobile-nav" class="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                <!-- Injected via JS -->
+            </select>
         </div>
 
-        <!-- Desktop Sidebar - Visible only on medium+ screens -->
+        <!-- Desktop Sidebar -->
         <aside class="hidden md:flex flex-col w-64 border-r border-slate-200 bg-white md:h-[calc(100vh-80px)] md:sticky md:top-0">
-            <div class="p-4 border-b border-slate-100 bg-slate-50">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Exam Themes</h3>
+            
+            <!-- Tools Button Group -->
+            <div class="p-3 bg-slate-50 border-b border-slate-200 space-y-2">
+                <button onclick="loadMasterGuide()" class="w-full bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-slate-700 transition flex items-center gap-2 justify-center shadow-sm">
+                    <span>📘</span> Master Guide
+                </button>
+                <button onclick="loadProgress()" class="w-full bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-md text-sm font-bold hover:bg-slate-50 transition flex items-center gap-2 justify-center shadow-sm">
+                    <span>📊</span> Progress
+                </button>
+            </div>
+
+            <div class="p-3 border-b border-slate-100 bg-white">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Question Types</h3>
             </div>
             <nav id="sidebar-nav" class="flex-1 overflow-y-auto sidebar-scroll p-2 space-y-1">
-                <!-- Nav items injected by JS -->
+                <!-- Injected via JS -->
             </nav>
+            <!-- Brainstorming Link at Bottom -->
+            <div class="p-4 border-t border-slate-100 bg-indigo-50">
+                 <button onclick="loadBrainstorming()" class="w-full text-left flex items-center gap-2 text-indigo-700 font-bold text-sm hover:text-indigo-900 transition">
+                    <span class="text-lg">✨</span> Essay Ideas
+                 </button>
+            </div>
         </aside>
 
         <!-- Main Content Area -->
         <main class="flex-1 bg-slate-50 p-4 md:p-8 w-full min-h-[80vh]" id="main-content-area">
             
             <!-- Welcome View -->
-            <div id="welcome-view" class="max-w-2xl mx-auto text-center space-y-6 py-8 md:py-16 px-2">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full text-blue-600 text-4xl mb-2 shadow-sm">
+            <div id="welcome-view" class="max-w-3xl mx-auto text-center space-y-8 py-12">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-blue-100 rounded-full text-blue-600 text-5xl mb-2 shadow-sm">
                     &#128218;
                 </div>
-                <h2 class="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight">Master the Digital SAT</h2>
-                <p class="text-slate-600 text-base md:text-lg leading-relaxed">
-                    Select a theme from the menu to unlock expert strategies, analyze skill requirements, and track your progress.
+                <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight">Your SAT Command Center</h2>
+                <p class="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
+                    Select a module to access specific strategies, traps, and practice questions. 
+                    <br>Use the <strong>Master Guide</strong> for a quick reference of all 10 question types.
                 </p>
-                <!-- Quick Cards for Mobile Visual Appeal -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mt-8">
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h4 class="font-bold text-slate-800 mb-1">Craft & Structure</h4>
-                        <p class="text-sm text-slate-500">Words in Context, Text Structure, Connections.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="loadMasterGuide()">
+                        <h4 class="font-bold text-slate-900">📘 Master Guide</h4>
+                        <p class="text-xs text-slate-500 mt-1">Summary table of concepts.</p>
                     </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h4 class="font-bold text-slate-800 mb-1">Standard Conventions</h4>
-                        <p class="text-sm text-slate-500">Grammar, Boundaries, Form & Sense.</p>
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="loadProgress()">
+                        <h4 class="font-bold text-slate-900">📊 Progress</h4>
+                        <p class="text-xs text-slate-500 mt-1">Track your growth.</p>
+                    </div>
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="loadBrainstorming()">
+                        <h4 class="font-bold text-indigo-700">✨ Essay Lab</h4>
+                        <p class="text-xs text-slate-500 mt-1">Creative brainstorming.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Dynamic Theme View -->
-            <div id="theme-view" class="hidden max-w-5xl mx-auto space-y-6 pb-12">
+            <!-- Master Guide View -->
+            <div id="master-guide-view" class="hidden max-w-6xl mx-auto">
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold text-slate-900">Master Reference Guide</h2>
+                    <p class="text-slate-500">At-a-glance summary of every SAT Reading & Writing question type.</p>
+                </div>
                 
-                <!-- Theme Header Card -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wide mb-2" id="theme-category">Category</span>
-                            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight" id="theme-title">Theme Title</h2>
-                            <p class="text-sm md:text-base text-slate-500 mt-2" id="theme-description">Brief description of what this theme covers.</p>
-                        </div>
-                        
-                        <!-- Mastered Button -->
-                        <button id="mark-mastered-btn" class="w-full md:w-auto px-6 py-3.5 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm border active:scale-95 touch-manipulation">
-                            <span id="mastered-icon" class="text-xl">&#9675;</span>
-                            <span id="mastered-text">Mark as Mastered</span>
-                        </button>
+                <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm text-left">
+                            <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-4 w-1/6">Category</th>
+                                    <th class="px-6 py-4 w-1/6">Type</th>
+                                    <th class="px-6 py-4 w-1/4">What It Tests</th>
+                                    <th class="px-6 py-4 w-1/4">You Must</th>
+                                    <th class="px-6 py-4 w-1/6">Common Traps</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-600" id="guide-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+            </div>
 
-                <!-- Content Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Progress View -->
+            <div id="progress-view" class="hidden max-w-5xl mx-auto">
+                <div class="mb-8 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-900">Your Growth</h2>
+                        <p class="text-slate-500">Track your mastery across the 4 domains.</p>
+                    </div>
+                    <button onclick="resetProgress()" class="text-sm text-rose-500 hover:text-rose-700 underline">Reset All Progress</button>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="category-stats-container">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Module Audit List -->
+                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 font-bold text-slate-700">
+                        Module Audit
+                    </div>
+                    <div class="divide-y divide-slate-100" id="progress-audit-list">
+                        <!-- Populated via JS -->
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Brainstorming View -->
+            <div id="brainstorming-view" class="hidden max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Essay Brainstorming Lab</h2>
+                    <p class="text-slate-500">Deep questions to unlock your personal narrative.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="brainstorm-grid"></div>
+            </div>
+
+            <!-- Theme View -->
+            <div id="theme-view" class="hidden max-w-6xl mx-auto space-y-6 pb-20">
+                
+                <!-- Theme Header -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row justify-between gap-4">
+                    <div>
+                        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wide" id="theme-category">Category</span>
+                        <h2 class="text-3xl font-bold text-slate-900 mt-2" id="theme-title">Title</h2>
+                        <p class="text-slate-500 mt-1" id="theme-description">Desc</p>
+                    </div>
+                    <button id="mark-mastered-btn" class="px-6 py-2 rounded-lg border font-semibold flex items-center gap-2 justify-center transition-all bg-white hover:bg-slate-50">
+                        <span id="mastered-icon">&#9675;</span> <span id="mastered-text">Mark Mastered</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     
-                    <!-- Left Column: Content (Order 2 on mobile to show chart first? No, strategy first is better) -->
-                    <div class="lg:col-span-2 space-y-6 order-2 lg:order-1">
+                    <!-- Left: Strategy (4 cols) -->
+                    <div class="lg:col-span-4 space-y-6 order-2 lg:order-1">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-full">
+                            <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 font-bold text-slate-700 flex items-center gap-2">
+                                <span class="text-amber-500 text-lg">★</span> Expert Strategy
+                            </div>
+                            <div class="p-5 strat-box text-slate-600" id="strategy-content">
+                                <!-- Dynamic Content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Practice & Visuals (8 cols) -->
+                    <div class="lg:col-span-8 space-y-6 order-1 lg:order-2">
                         
-                        <!-- Strategies -->
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div class="bg-slate-50 border-b border-slate-100 px-5 py-4">
-                                <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                                    <span class="text-blue-500 bg-blue-100 w-6 h-6 rounded flex items-center justify-center text-sm">&#9889;</span> 
-                                    High-Yield Strategies
+                        <!-- Interactive Practice Zone -->
+                        <div id="practice-zone" class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden relative min-h-[400px]">
+                            <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center">
+                                <h3 class="font-bold flex items-center gap-2">
+                                    <span>&#9997;</span> Practice Simulator
                                 </h3>
+                                <div class="text-xs bg-slate-700 px-3 py-1 rounded-full text-slate-300" id="question-tracker">Question 1 of 5</div>
                             </div>
-                            <div class="p-5 md:p-6">
-                                <div class="prose prose-slate prose-sm md:prose-base max-w-none text-slate-600 space-y-4" id="strategy-content">
-                                    <!-- Dynamic Content -->
+
+                            <div class="p-6" id="quiz-content-area">
+                                <!-- Dynamic Question Content -->
+                                <div id="question-text" class="serif-text text-lg leading-relaxed text-slate-800 mb-6"></div>
+                                <div class="flex items-center gap-2 mb-6">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Difficulty:</span>
+                                    <span id="difficulty-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-600">Medium</span>
+                                </div>
+                                <div id="options-container" class="space-y-3"></div>
+                                
+                                <!-- Feedback & Navigation -->
+                                <div id="feedback-area" class="hidden mt-6 pt-6 border-t border-slate-100">
+                                    <div id="feedback-box" class="p-4 rounded-lg mb-4 text-sm leading-relaxed"></div>
+                                    <button id="next-question-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2">
+                                        Next Question <span>&rarr;</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Traps -->
-                        <div class="bg-rose-50 rounded-xl border border-rose-100 p-5 md:p-6">
-                            <h4 class="text-rose-800 font-bold mb-4 flex items-center gap-2">
-                                <span class="text-lg">&#9888;</span> Common Traps
-                            </h4>
-                            <ul class="space-y-3 text-rose-800 text-sm md:text-base" id="traps-list">
-                                <!-- Dynamic List -->
-                            </ul>
+                        <!-- Mini Radar -->
+                         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                            <h4 class="text-center text-xs font-bold text-slate-400 uppercase mb-2">Skill Radar</h4>
+                            <div class="chart-container mx-auto" style="height: 200px;"><canvas id="skillRadarChart"></canvas></div>
                         </div>
 
                     </div>
-
-                    <!-- Right Column: Visuals & Tips -->
-                    <div class="space-y-6 order-1 lg:order-2">
-                        
-                        <!-- Radar Chart -->
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                            <div class="mb-2 text-center">
-                                <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wide">Skill Profile</h4>
-                            </div>
-                            <!-- Container ensures chart doesn't overflow or squash on mobile -->
-                            <div class="chart-container mx-auto">
-                                <canvas id="skillRadarChart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Pro Tip -->
-                        <div class="bg-indigo-50 rounded-xl border border-indigo-100 p-5 shadow-sm">
-                            <div class="flex items-start gap-3">
-                                <span class="text-2xl mt-1">&#128161;</span>
-                                <div>
-                                    <h5 class="font-bold text-indigo-900 text-sm mb-1">Pro Tip</h5>
-                                    <p class="text-indigo-800 text-sm italic leading-relaxed" id="pro-tip">
-                                        Loading tip...
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
                 </div>
             </div>
 
@@ -229,458 +294,1044 @@
         // --- DATA STORE ---
         const satData = [
             {
-                id: "words-in-context",
-                title: "Words in Context",
+                id: "cross-text",
+                title: "1. Cross-Text Connections",
                 category: "Craft & Structure",
-                description: "Determine the meaning of a word or phrase based on its context within a passage.",
-                strategies: `
-                    <p>These questions test vocabulary and nuance. Avoid picking definitions just because they are common.</p>
-                    <ul class="list-none space-y-4 mt-2">
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">1. The Blank Method</strong>
-                            Cover the choices. Read the sentence and guess your own word based on clues. Then find the match.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">2. Polarity Check</strong>
-                            Is the missing word positive (+), negative (-), or neutral? Look for words like "however" or "and" to guide you.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">3. Plug It In</strong>
-                            Read the full sentence with each choice. Eliminate those that create logical contradictions.
-                        </li>
-                    </ul>
-                `,
-                traps: [
-                    "Choosing a word because it 'sounds sophisticated'.",
-                    "Ignoring secondary meanings of common words.",
-                    "Overlooking 'tone' keywords."
-                ],
-                skillProfile: [90, 60, 20, 30, 80],
-                tip: "Focus on words *immediately surrounding* the blank. They often contain the synonym."
+                description: "Compare two texts and identify their relationship.",
+                strategyData: {
+                    tests: "Comparing two texts and identifying their relationship.",
+                    must: ["Determine if they agree, disagree, or complement", "Identify how one text adds to or challenges the other"],
+                    traps: ["Assuming disagreement when both texts only discuss different aspects"]
+                },
+                skillProfile: [40, 95, 20, 80, 50],
+                questions: [
+                    {
+                        difficulty: "Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Human behavior is shaped solely by external reinforcement (rewards/punishments) that become learned patterns.<br><strong>Text 2 (Summary):</strong> Horney argues that human behavior arises from inner motives and inborn tendencies, not just external factors.<br><br>Based on the texts, how would Horney (Text 2) most likely respond to the view of behaviorism presented in Text 1?",
+                        options: [
+                            "By disagreeing with the claim that human beings are shaped only by external reinforcement",
+                            "By admitting that rewards and punishments largely construct the unconscious mind",
+                            "By questioning the belief that unconscious motives exist before a person has learned",
+                            "By confirming that an innate mental life does not develop until exposure to external rewards"
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> Text 2 states Horney believed behaviors arise from inner motives and inborn tendencies, not solely external reinforcement. This directly contradicts the strict behaviorism of Text 1."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Morales and Clarke argue dolphins show 'theory of mind' because they recognize images.<br><strong>Text 2 (Summary):</strong> Keller, Owens, and Ruiz argue dolphins may simply rely on familiar routines rather than true understanding.<br><br>Based on the texts, how would Keller, Owens, and Ruiz (Text 2) most likely respond to Morales and Clarke (Text 1)?",
+                        options: [
+                            "They would argue that marine mammals other than dolphins may also have a theory of mind.",
+                            "They would argue that the dolphins would be able to solve the problems on their own without the images.",
+                            "They would encourage Morales and Clarke to show the same images to other marine mammals.",
+                            "They would suggest placing dolphins in new environments to test if their responses truly show theory of mind."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> Text 2 argues dolphins may simply rely on familiar routines. Thus, they would propose testing dolphins in unfamiliar (new) environments to remove routine-based explanations."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Asserts that probiotic therapy is a straightforward and superior alternative to conventional treatment.<br><strong>Text 2 (Summary):</strong> States the major difficulty is finding the correct strain that actually works for specific patients.<br><br>Based on the texts, how would the author of Text 2 most likely respond to the assertion in Text 1?",
+                        options: [
+                            "By agreeing about introducing bacteria but disagreeing that each strain interacts only with a specific population",
+                            "By questioning the straightforwardness of the process and the claim that probiotic therapy is better than conventional treatment",
+                            "By conceding the assertion is true but arguing that identifying the right strain is the real challenge",
+                            "By emphasizing the need for safe storage and delivery of probiotic products"
+                        ],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> Text 2 states the major difficulty is finding the correct strain. This challenges the simplicity/straightforwardness implied in Text 1."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Claims Brontoraptor is a mammal because it has a large brain.<br><strong>Text 2 (Summary):</strong> Argues that large reptiles also have large brains, so brain size is not unique to mammals.<br><br>Based on the texts, how would the author of Text 2 most likely respond to the claim in Text 1?",
+                        options: [
+                            "By noting that Grant’s findings provide less conclusive evidence than Riggs’s discovery",
+                            "By challenging the claim because Brontoraptor appeared more reptile-like before developing mammal traits",
+                            "By agreeing but arguing that brain size alone doesn't justify classifying Brontoraptor as a mammal",
+                            "By criticizing the claim for assuming non-mammal species cannot have large brains"
+                        ],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> Text 2 argues that large reptiles also have large brains, so brain size alone cannot link Brontoraptor to mammals—undermining the claim of Text 1."
+                    },
+                    {
+                        difficulty: "Very Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Claims megafloods are triggered by dam collapses and leave massive deposits instantly.<br><strong>Text 2 (Summary):</strong> Argues that deposits actually form over long periods, not just during intense brief floods.<br><br>Based on the texts, how would the author of Text 2 most likely respond to the claim in Text 1?",
+                        options: [
+                            "By stating that while the claim seems reasonable, new research provides a more accurate explanation",
+                            "By supporting the claim but saying deposits accumulate even more rapidly",
+                            "By asserting that every aspect of the claim is mistaken",
+                            "By faulting the claim for assuming megafloods are triggered solely by dam collapses"
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> Text 2 says deposits actually form over long periods. This revises the explanation rather than rejecting the entire concept."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Claims the US must switch entirely to digital payments to participate in global commerce.<br><strong>Text 2 (Summary):</strong> Emphasizes the advantages of having BOTH cash and digital options.<br><br>Based on the texts, how would the author of Text 2 most likely respond to the claim in Text 1?",
+                        options: [
+                            "By dismissing the idea that the US cannot participate in global commerce without switching to digital payments",
+                            "By conceding that digital payments must be used for international trade",
+                            "By implying the US should use both cash and digital payments",
+                            "By describing the difficulties of converting entirely to digital payments"
+                        ],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> Text 2 emphasizes the advantages of having BOTH cash and digital options, contradicting the claim that digital must become the primary method."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Levin claims subsidy programs are purely helpful.<br><strong>Text 2 (Summary):</strong> Cortez warns that subsidies can increase food prices and harm people not receiving assistance.<br><br>Based on the texts, how would Cortez (Text 2) respond to the claim made by Levin (Text 1)?",
+                        options: [
+                            "By asserting that the programs are purely helpful",
+                            "By conceding it is instinctive to help one’s own species",
+                            "By questioning whether subsidies can help a single household",
+                            "By cautioning against fully supporting the initiative due to possible negative consequences"
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> Text 2 warns that subsidies can increase food prices and harm people. This counters Levin’s positive claims by urging caution."
+                    },
+                    {
+                        difficulty: "Medium-Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Claims computer-based writers don't learn strong writing skills.<br><strong>Text 2 (Summary):</strong> Argues computers do NOT eliminate the need for writing skills; writers still must understand structure.<br><br>Based on the texts, how would the author of Text 2 most likely respond to the claims of the author of Text 1?",
+                        options: [
+                            "By conceding that computer-based writers don’t learn strong writing skills",
+                            "By emphasizing public reading is more important than writing method",
+                            "By clarifying that writing on a laptop requires fewer skills",
+                            "By stating that computer-based essays still require traditional writing skills"
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> Text 2 argues computers do NOT eliminate the need for writing skills; writers still must understand structure, clarity, and refinement."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "<strong>Text 1 (Summary):</strong> Counselors are reassured by Grant's ideas on neural predetermination.<br><strong>Text 2 (Summary):</strong> Argues neural predetermination oversimplifies brain complexity.<br><br>Based on the texts, what would the author of Text 2 most likely say about Text 1’s characterization of the counselors’ response?",
+                        options: [
+                            "It is overly critical given the complexity of the human brain emphasized by Grant",
+                            "It is logical because the comparison may help people accept neural predetermination",
+                            "It is overly positive given Grant’s remarks about complexity",
+                            "It is surprising because the research community accepted Grant’s ideas"
+                        ],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> Text 2 argues neural predetermination oversimplifies brain complexity. Therefore, Text 1’s reassuring stance would be seen as unrealistically positive."
+                    }
+                ]
             },
             {
                 id: "text-structure",
-                title: "Structure & Purpose",
+                title: "2. Text Structure & Purpose",
                 category: "Craft & Structure",
-                description: "Analyze the overall structure or identify the main purpose of a text.",
-                strategies: `
-                    <p>Step back and look at the "Big Picture". Don't get lost in the details.</p>
-                    <ul class="list-none space-y-4 mt-2">
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">1. The 'Why' Filter</strong>
-                            Why did the author write this sentence? To introduce, refute, or conclude?
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">2. Identify the Shift</strong>
-                            Look for "But," "However," or "Although." The main point is usually <em>after</em> the shift.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">3. Verb Matching</strong>
-                            Do the answer verbs (e.g., "criticize," "explain") match the passage's tone?
-                        </li>
-                    </ul>
-                `,
-                traps: [
-                    "Selecting a true detail that isn't the *main* point.",
-                    "Confusing a character's opinion with the narrator's."
-                ],
+                description: "Analyze how a passage is organized and why.",
+                strategyData: {
+                    tests: "How a passage is organized and why a specific part is included.",
+                    must: ["Identify the author’s purpose (persuade, explain, inform)", "Determine the function of a paragraph/sentence (example, contrast, detail)"],
+                    traps: ["Choosing an answer that restates content instead of explaining structure"]
+                },
                 skillProfile: [30, 90, 20, 50, 60],
-                tip: "Read the first and last sentence carefully. The Purpose is usually bookended there."
+                questions: [
+                     {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A text discusses a study by Nguyen and Romero on sleep patterns, noting that previous studies relied on unreliable self-reported data.<br><br>Which choice best describes the function of the second sentence in the overall structure of the text?",
+                        options: [
+                            "It identifies a flaw in the research method used by Nguyen and Romero.",
+                            "It introduces the difficulty that the investigation by Nguyen and Romero was designed to overcome.",
+                            "It summarizes the conclusions reached by studies conducted before the investigation by Nguyen and Romero.",
+                            "It explains how other experts on sleep patterns have responded to the investigation by Nguyen and Romero."
+                        ],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> The second sentence describes a limitation of earlier studies (self-reported data), setting up the need for Nguyen and Romero’s improved methodology."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A passage describes bioluminescence. The third sentence states that this phenomenon is not restricted to ocean-dwelling animals.<br><br>Which choice best describes the function of the third sentence in the overall structure of the text?",
+                        options: [
+                            "It generalizes the phenomenon discussed beyond ocean-dwelling animals.",
+                            "It offers another explanation of bioluminescence that is different from marine animals.",
+                            "It provides more examples of organisms with bioluminescence.",
+                            "It explains how bioluminescence evolved in fungi, fireflies, and millipedes."
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> The sentence states bioluminescence is not restricted to ocean animals, broadening the topic beyond marine life."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A narrative about Lila, who prefers watching Mr. Harper carve wood over playing with other children. The underlined sentence compares this preference to the difference between childhood games and adult artistry.<br><br>Which choice best describes the function of the underlined sentence in the text as a whole?",
+                        options: [
+                            "It reiterates Lila’s fascination with Mr. Harper’s skillful woodcarving abilities.",
+                            "Its comparison conveys the depth of Lila’s regard and affection for Mr. Harper.",
+                            "It contrasts the lighthearted enjoyments of childhood with the serious concerns of adulthood.",
+                            "It reveals the subtle differences between Lila’s opinion of Mr. Harper and his opinion of her."
+                        ],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> The sentence emphasizes that Lila prefers being with Mr. Harper over spending time with children her age, highlighting her affection and admiration."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A text outlines the problem of urban heat waves, proposes 'cool roofs' as a solution, but notes potential complications with weather patterns.<br><br>Which choice best states the main purpose of the text?",
+                        options: [
+                            "It presents a comprehensive strategy to prevent future heat waves and details how city governments will guarantee lower energy use.",
+                            "It explains how reflective 'cool roofs' function and compares them with traditional building materials.",
+                            "It describes a growing environmental challenge and a potential remedy, while acknowledging a possible complication of that remedy.",
+                            "It compares how Phoenix and Las Vegas have improved building design, showing that other cities must imitate them to remain competitive."
+                        ],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> The text outlines the problem (heat waves), a solution (cool roofs), and the complication (possible weather pattern effects)."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> An experiment using atomic clocks confirmed Einstein’s prediction about time dilation.<br><br>Which choice best states the main purpose of the text?",
+                        options: [
+                            "To claim that the results of an experiment may provide evidence in support of a prior theory",
+                            "To advocate for the importance of the data to dispelling the criticisms of Einstein’s theory",
+                            "To discuss the capabilities and limitations of using atomic clocks to test physical theories",
+                            "To detail two conflicting theories and an important piece of substantive evidence for both"
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> The experiment confirmed Einstein’s prediction, showing that the results support the theory."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A story where children are confused about a mysterious crate and desire an explanation before they are silenced by an adult.<br><br>Which choice best states the function of the underlined sentence in the text as a whole?",
+                        options: [
+                            "It describes a point of curiosity regarding an object that the children would like explained.",
+                            "It demonstrates the conflicting emotions displayed by various members of the family.",
+                            "It clarifies the loving relationship between the children and their mother.",
+                            "It examines how the inquisitive nature of children can be encouraged by a parent."
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> The sentence shows the children's confusion about the crate and their desire for explanation before being silenced."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A poem describes a robin's call, which is typically associated with joy, but in this specific text, it expresses loneliness and longing instead.<br><br>Which choice best states the main purpose of the text?",
+                        options: [
+                            "To dismiss the claim that delight is recognized less often than sorrow is",
+                            "To explain how the viewpoints of those who feel unburdened compare with those who feel trapped",
+                            "To evaluate whether movements made in restricted areas inflict greater harm than those made in wide spaces",
+                            "To contemplate how a type of vocalization associated with positivity can actually represent both despair and longing"
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> The poem shows a robin’s call, often linked to joy, expressing loneliness and longing instead."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A narrative passage describing how Jo and Professor Bhaer complement each other with contrasting qualities that benefit both of them.<br><br>Which choice best states the main purpose of the text?",
+                        options: [
+                            "To describe Jo’s resolve to secure an appropriate romantic companion",
+                            "To highlight the benefits of having differing qualities from one’s partner",
+                            "To emphasize Jo’s preferences in a romantic relationship",
+                            "To demonstrate that Jo finds her developing relationship both enriching and confusing"
+                        ],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> The passage shows how Jo and Professor Bhaer complement each other with contrasting qualities that benefit both."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A story focuses on how Mr. Carter slowly and painfully saves a small sum of money through bargaining and scraping coins together.<br><br>Which choice best states the main purpose of the text?",
+                        options: [
+                            "To emphasize the challenges of saving up the amount of money",
+                            "To demonstrate the variety of sources of income Mr. Carter has",
+                            "To highlight the pride Mr. Carter feels over saving up this money",
+                            "To describe the types of money Mr. Carter enjoys collecting"
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> The story focuses on how slowly and painfully Mr. Carter saves a small sum through bargaining and scraping coins together."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "<strong>Context:</strong> A historical text explaining how the new rail line boosted Denver’s growth through increased travel and trade in the late 1800s.<br><br>Which choice best states the main purpose of the text?",
+                        options: [
+                            "To analyze the economic impacts that the new railroad had on Colorado",
+                            "To describe the conditions that travelers faced when journeying to Colorado",
+                            "To explain factors that contributed to the growth of Denver in the late 1800s",
+                            "To compare the risks involved in traveling to Colorado by train and by wagon"
+                        ],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> The passage emphasizes how the new rail line boosted Denver’s growth through increased travel and trade."
+                    }
+                ]
             },
             {
-                id: "cross-text",
-                title: "Cross-Text Connections",
-                category: "Information & Ideas",
-                description: "Synthesize information from two distinct texts to find relationships.",
-                strategies: `
-                    <p>You are a mediator between two authors. Be neutral.</p>
-                    <ul class="list-none space-y-4 mt-2">
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">1. Summarize First</strong>
-                            Mentally summarize: "Text 1 says X, Text 2 says Y."
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">2. Define Relationship</strong>
-                            Is it Agreement? Disagreement? Or Qualification (Agree with a 'but')?
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">3. Point of Contact</strong>
-                            Identify exactly <em>what</em> topic they share. Eliminate choices discussing unique topics.
-                        </li>
-                    </ul>
-                `,
-                traps: [
-                    "Assuming total disagreement based on one minor point.",
-                    "Using outside knowledge."
-                ],
-                skillProfile: [40, 95, 20, 80, 50],
-                tip: "For 'How would Author 1 respond?', adopt Author 1's persona strictly."
-            },
-            {
-                id: "transitions",
-                title: "Transitions",
-                category: "Expression of Ideas",
-                description: "Select the word that logically connects two sentences.",
-                strategies: `
-                    <p>This is pure logic. How does Sentence B relate to Sentence A?</p>
-                    <ul class="list-none space-y-4 mt-2">
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">1. The 'No-Option' Test</strong>
-                            Read without any transition. Does it continue, contradict, or result?
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">2. Categorize</strong>
-                            Group choices: Continuation (Also), Contrast (However), Causation (Thus).
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">3. Eliminate Synonyms</strong>
-                            If 'Furthermore' and 'Moreover' are both options, both are likely wrong.
-                        </li>
-                    </ul>
-                `,
-                traps: [
-                    "Picking what 'sounds smooth' but has wrong logic.",
-                    "Ignoring punctuation clues."
-                ],
-                skillProfile: [50, 85, 40, 20, 80],
-                tip: "Cross out the transition word and read the bare sentences to see the naked logic."
+                id: "words-in-context",
+                title: "3. Words in Context",
+                category: "Craft & Structure",
+                description: "Choose the most accurate meaning of a word.",
+                strategyData: {
+                    tests: "Choosing the most accurate meaning of a word based on the surrounding sentence.",
+                    must: ["Use context clues, not dictionary definition"],
+                    traps: ["Choosing a meaning that is correct in general but wrong for THAT sentence"]
+                },
+                skillProfile: [90, 60, 20, 30, 80],
+                questions: [
+                     {
+                        difficulty: "Medium",
+                        text: "The playwright deliberately omitted any notes in the script of her drama about how the final scene’s storm should be portrayed... thereby giving future directors the _____ to shape the moment according to their own creative visions.",
+                        options: ["confusion", "dedication", "instruction", "liberty"],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> 'Liberty' means freedom to decide. The sentence states the playwright gave directors freedom in interpretation."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The innovations developed by environmental engineer Marcus Lee aim to make the manufacturing and use of biodegradable plastics less ______ to surrounding ecosystems.",
+                        options: ["detrimental", "favorable", "fundamental", "palliative"],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> 'Detrimental' means harmful. The sentence discusses reducing harm to ecosystems."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "Dr. Lena Marshall and her colleagues have proposed that protons might include a strange quark paired with its antimatter counterpart. For many years, protons were thought to _____ only two up quarks and one down quark.",
+                        options: ["avoid", "destroy", "create", "contain"],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> Protons were believed to contain only those quarks. 'Contain' fits logically and scientifically."
+                    },
+                    {
+                        difficulty: "Easy",
+                        text: "As the lead engineers behind the first widely adopted touchscreen smartphone, Carla Nguyen and Leo Martinez had a ______ impact on the mobile technology industry.",
+                        options: ["powerful", "moderate", "complicated", "questionable"],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> Their work had a major, transformative effect—thus 'powerful.'"
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "During his studies, Winogradsky observed that introducing certain minerals into soil could halt the decay of plant matter, producing conditions that were no longer ______ the spread of decomposing microbes.",
+                        options: ["available for", "reminiscent of", "inhospitable to", "conducive to"],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> If decay stops, the conditions are no longer conducive to (favorable for) microbial spread."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "According to William James, all organisms have a built-in tendency to _____ and would halt this effort only if prevented by external circumstances.",
+                        options: ["deteriorate", "perish", "persevere", "disappear"],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> Organisms strive to improve and maintain condition—so they persevere. Other choices contradict the meaning."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "Through her work on restoring historic community centers, Elena Begay became one of the leading authorities on the ______ of Navajo gathering places in the region.",
+                        options: ["repossession", "rehabilitation", "reciprocation", "reindustrialization"],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> Begay worked on restoration. Therefore, 'rehabilitation' fits perfectly."
+                    },
+                    {
+                        difficulty: "Easy",
+                        text: "Many early settlements were established along river deltas, where the land was especially ______ in nutrients.",
+                        options: ["unique", "coarse", "rich", "lacking"],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> River deltas have nutrient-rich soil, which supported agriculture."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "Professional painters are often better at noticing subtle color differences, since they frequently _____ colors with great care, which sharpens their perception over time.",
+                        options: ["enunciate", "suggest", "define", "camouflage"],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> Painters define colors precisely. 'Enunciate' applies to speech; 'camouflage' and 'suggest' do not fit."
+                    }
+                ]
             },
             {
                 id: "rhetorical-synthesis",
-                title: "Rhetorical Synthesis",
+                title: "4. Rhetorical Synthesis",
                 category: "Expression of Ideas",
-                description: "Synthesize notes into a sentence achieving a specific goal.",
-                strategies: `
-                    <p>A matching game. The prompt's command is the only thing that matters.</p>
-                    <ul class="list-none space-y-4 mt-2">
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">1. Identify Goal</strong>
-                            Underline the command: "The student wants to [emphasize location]..."
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">2. Match Goal to Choice</strong>
-                            Find the choice that explicitly does that. If it asks for location, pick the one with a city/country.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">3. Ignore Missing Info</strong>
-                            It doesn't matter if the answer leaves out other bullet points.
-                        </li>
-                    </ul>
-                `,
-                traps: [
-                    "The 'Summary' trap (picking the choice with the most info).",
-                    "Ignoring the specific command."
-                ],
+                description: "How well information fits the argument or purpose.",
+                strategyData: {
+                    tests: "How well information fits the argument or purpose of the passage.",
+                    must: ["Determine which sentence best supports the claim", "Choose the most logical information to add"],
+                    traps: ["Picking the 'longest' or 'smart-sounding' answer instead of the most relevant"]
+                },
                 skillProfile: [20, 70, 30, 90, 95],
-                tip: "The prompt is King. Obey the command literally."
+                questions: [
+                    {
+                        difficulty: "Medium",
+                        text: "The student wants to present the primary aim of the research study. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "Chen’s team aimed to comprehend the engineering principles underlying beaver dams’ porous yet durable characteristics.",
+                            "The researchers employed digital simulations that modeled the stacking of wooden logs and studied the friction points where logs intersected.",
+                            "After studying the friction points where logs intersected, the researchers found that the formations became more stable when hydraulic force was exerted.",
+                            "As examined by Chen’s team, beaver dams are remarkably distinct hydraulic barriers that are porous yet durable."
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> The question asks for the primary aim of the study. The notes explicitly state that Chen’s team aimed to comprehend the engineering principles behind the dams’ dual characteristics."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The student wants to emphasize a difference between the two watercolors. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "A watercolor is a painting made with pigments suspended in water.",
+                            "The watercolors, paintings made with pigments suspended in water, were both completed by Harrington in the early 1900s.",
+                            "Harrington completed numerous watercolors, including one in 1912 and another in 1918.",
+                            "While both were painted by Harrington, the 1912 watercolor depicts the Rocky Mountains, and the 1918 watercolor depicts the Mississippi River."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> The question requires highlighting a difference. Only option D identifies the different subject matter of the two watercolors."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The student wants to present the study and its findings. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "In a 2021 study, Marcus Rivera and colleagues used both fossil remains and scans of modern grizzly bears to determine that the short-faced bear could stand about 12 feet tall, run faster than a grizzly, roam across large regions, and consume large quantities of meat in one meal.",
+                            "In 2021, Marcus Rivera and colleagues studied rare short-faced bear fossils and scans of modern grizzly bears in order to learn more about how the short-faced bear lived.",
+                            "Short-faced bear fossils and scans of modern grizzly bears were the focus of a 2021 study by Marcus Rivera and colleagues.",
+                            "In a 2021 study, Marcus Rivera and colleagues analyzed fossils of the short-faced bear, a giant prehistoric bear that lived in North America during the Ice Age."
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> This option presents both the methods used and the specific findings, exactly matching the notes."
+                    },
+                    {
+                        difficulty: "Easy",
+                        text: "The student wants to compare the heights of the two monuments. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "Both the Washington Monument, which stands in Washington, D.C., and the Gateway Arch, which stands in St. Louis, Missouri, are well-known American landmarks.",
+                            "Some famous United States monuments, including one completed in the mid-20th century in St. Louis, Missouri, are taller than 600 feet.",
+                            "The Washington Monument is 555 feet tall, while the taller Gateway Arch is 630 feet tall.",
+                            "The Washington Monument, which is 555 feet tall, was completed in the late 19th century in Washington, D.C."
+                        ],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> This is the only option that directly compares the heights of the two monuments."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The student wants to introduce the composition Rhapsody in Blue to an audience already familiar with George Gershwin. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "Rhapsody in Blue was not the only piece written by American composer George Gershwin.",
+                            "George Gershwin frequently used soloists and expressive musical motifs throughout his career.",
+                            "In addition to his composition Rhapsody in Blue, which was completed in 1924, American composer George Gershwin created numerous other works that blend jazz and classical music.",
+                            "George Gershwin’s Rhapsody in Blue showcases a piano soloist trading passages with the orchestra while using musical motifs to evoke the fast-paced energy of city life."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> Since the audience already knows Gershwin, the most relevant information is what the composition itself features, not Gershwin’s biography."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The student wants to emphasize how Jonas changed across the books in the series. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "Jonas goes from being an eleven-year-old boy receiving memories in The Giver to an older leader of another village in Messenger.",
+                            "Lois Lowry, an American author, wrote a series of novels that includes The Giver and Messenger.",
+                            "The books in Lois Lowry’s series include The Giver, Gathering Blue, and Messenger.",
+                            "Jonas lives in a tightly controlled community and later appears in another village in a different book."
+                        ],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> This option clearly highlights Jonas’s development from child to leader, directly addressing the goal of showing change."
+                    },
+                    {
+                        difficulty: "Easy",
+                        text: "The student wants to emphasize a similarity between the two planets. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "Jupiter and Saturn are very different planets.",
+                            "Among the eight planets in our solar system is Jupiter, which is a gas giant.",
+                            "Jupiter is the largest planet in the solar system, while Saturn is famous for its rings.",
+                            "Both Jupiter and Saturn are classified as gas giants in our solar system."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> This is the only option that states a similarity: both are gas giants."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The student wants to emphasize the abilities of smokejumpers. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "Smokejumpers are specially trained firefighters who parachute into remote wildfire areas in the western United States.",
+                            "While on the job, smokejumpers must deal with falling trees, heavy smoke, and shifting winds.",
+                            "Smokejumpers often land miles from roads or towns and then work to contain wildfires.",
+                            "Smokejumpers can carry packs weighing over 80 pounds and hike for hours over steep, uneven ground to reach a fire."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> This option highlights their physical abilities, which is the goal."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The student wants to highlight a similarity within Johnson’s achievements. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "Marie Johnson studied mechanical engineering at Georgia Tech; similarly, she was the first Black woman to lead a major spacecraft design team at NASA.",
+                            "Although she was the first Black woman to lead a major spacecraft design team at NASA, Marie Johnson was also the first Black woman to serve as chief engineer at a major NASA center.",
+                            "Marie Johnson completed graduate studies in aerospace engineering at MIT and was the first Black woman to serve as chief engineer at a major NASA center.",
+                            "American aerospace engineer Marie Johnson achieved two notable firsts in her career: she was the first Black woman to lead a major spacecraft design team at NASA and the first Black woman to serve as chief engineer at a major NASA center."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> This option clearly highlights the similarity between her achievements—both were major firsts."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The student wants to specify the reason that mineral formations in some limestone caves have changed. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+                        options: [
+                            "Increased acidity of rainwater slows mineral deposition in limestone caves.",
+                            "Mineral deposition creates stalactites and stalagmites, and this process has slowed in some limestone caves.",
+                            "Air pollution increases the acidity of rainwater that enters limestone caves and interacts with mineral deposits.",
+                            "The rate of mineral deposition has decreased in some limestone caves because increased acidity of rainwater slows this process."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> This option connects both cause (acidic rainwater) and effect (slowed mineral deposition) in one complete statement."
+                    }
+                ]
             },
             {
-                id: "form-structure-sense",
-                title: "Form, Structure, Sense",
-                category: "Standard English Conventions",
-                description: "Correct errors in grammar (Subject-Verb, Pronouns, Modifiers).",
-                strategies: `
-                    <p>Trust the rules, not your 'ear'.</p>
-                    <ul class="list-none space-y-4 mt-2">
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">1. Locate Subject</strong>
-                            Find the main noun. Ignore prepositional phrases. Match S/S or P/P.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">2. Check Tense</strong>
-                            Keep tense consistent with surrounding verbs unless there's a time shift.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">3. Dangling Modifiers</strong>
-                            "Walking down the street, the dog..." (The modifier must touch the noun it describes).
-                        </li>
-                    </ul>
-                `,
-                traps: [
-                    "Thinking 'Data' is singular (treat strict agreement).",
-                    "Confusing 'Its' vs 'It's'."
-                ],
-                skillProfile: [10, 30, 95, 10, 70],
-                tip: "Short is sweet. If grammar is correct, the shortest answer is usually right."
+                id: "transitions",
+                title: "5. Transitions",
+                category: "Expression of Ideas",
+                description: "Find the correct connecting word between two ideas.",
+                strategyData: {
+                    tests: "Finding the correct connecting word between two ideas.",
+                    must: ["Choose the correct type of transition: Addition, Contrast, Cause-effect, Example"],
+                    traps: ["Choosing transitions based on 'sound,' not logical relationship"]
+                },
+                skillProfile: [50, 85, 40, 20, 80],
+                questions: [
+                     {
+                        difficulty: "Medium",
+                        text: "In the 1850s, William Still was instrumental in helping 1,000 people escape slavery, earning fame. ______, despite this fame during his life, Still is discussed far less today than figures like Frederick Douglass.",
+                        options: ["For example,", "However,", "Specifically,", "Similarly,"],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> The first sentence establishes his fame; the second contrasts it with his lack of recognition today. 'However' signals this contrast."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "To research Umbrian fruits, the botanist analyzes old lists of ingredients. ______, she analyzes paintings of Umbria, as they provide accurate representations of fruits grown there.",
+                        options: ["In sum,", "Instead,", "Thus,", "Additionally,"],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> The painting analysis is an <em>added</em> method of research, not a result (Thus) or replacement (Instead). 'Additionally' fits best."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "Even though judo originated in Japan, it has spread around the world. ______, there are about 800,000 practitioners in France, compared to 200,000 in Japan.",
+                        options: ["Likewise,", "In fact,", "Nevertheless,", "Accordingly,"],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> 'In fact' introduces specific data or a surprising statistic that emphasizes/validates the point made in the previous sentence."
+                    },
+                    {
+                        difficulty: "Easy",
+                        text: "Mt. Denali is the highest point in North America. ______, the lowest point is Death Valley.",
+                        options: ["Nonetheless,", "To illustrate,", "Conversely,", "Indeed,"],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> 'Conversely' introduces a direct opposite or contrast (Highest vs. Lowest)."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "The early Italian Renaissance painter Sandro Botticelli was respected, but after his death, his work was mostly disregarded. It was only in the late 19th century that the Pre-Raphaelites rediscovered its beauty. ______, his work has been given its rightful position in the history of art.",
+                        options: ["Subsequently,", "To illustrate,", "Lastly,", "Meanwhile,"],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> 'Subsequently' (meaning 'after that') fits the timeline: first disregarded, then rediscovered, and *subsequently* restored to its rightful position."
+                    }
+                ]
+            },
+            {
+                id: "central-ideas",
+                title: "6. Central Ideas & Details",
+                category: "Information & Ideas",
+                description: "Identify the main idea and key supporting details.",
+                strategyData: {
+                    tests: "Identifying the main idea and key supporting details.",
+                    must: ["Summarize the main purpose", "Ignore minor examples"],
+                    traps: ["Overfocusing on one sentence instead of the overall message"]
+                },
+                skillProfile: [30, 90, 20, 50, 60],
+                questions: [
+                     {
+                        difficulty: "Hard",
+                        text: "Barve's study on Himalayan songbirds found an association between habitat temperature and feather structure. This supports the prediction that feather structures vary with temperature.",
+                        options: [
+                            "It contradicted previous predictions.",
+                            "It discovered birds have adapted by growing feathers without flat sections.",
+                            "The results suggest ability to withstand cold is determined by feather length.",
+                            "The study supports the general prediction that feather structures vary with habitat temperature."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> The text explicitly states the study 'supports the general prediction'."
+                    }
+                ]
+            },
+            {
+                id: "command-evidence",
+                title: "7. Command of Evidence",
+                category: "Information & Ideas",
+                description: "Choosing which sentence or line supports the answer.",
+                strategyData: {
+                    tests: "Choosing which sentence or line supports the previous answer.",
+                    must: ["Pick only lines that directly prove the claim", "Avoid lines that are true but unrelated"],
+                    traps: ["Choosing evidence that looks important but does NOT answer the question"]
+                },
+                skillProfile: [70, 80, 20, 95, 40],
+                questions: [
+                    {
+                        difficulty: "Hard",
+                        text: "Claim: The narrator describes Mr. Johnson as arrogant. Which quote supports this?",
+                        options: [
+                            "It was a beautiful day in balmy May...",
+                            "Mr. Cornelius Johnson always spoke in a large and important tone.",
+                            "He was scrupulously buttoned... a shiny top hat replaced the felt of the afternoon.",
+                            "He looked like he was always congratulating himself."
+                        ],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> Looking like you are 'congratulating yourself' is a clear description of arrogance/self-importance."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "Scientists claim lava freed deep nitrate. Which finding supports this?",
+                        options: [
+                            "Lava areas had less phosphate.",
+                            "Nitrate concentrations were substantially higher in lava-affected areas than unaffected ones.",
+                            "Nitrate was higher than phosphate.",
+                            "There was little change in unaffected areas."
+                        ],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> Higher nitrate in the lava area directly supports the idea that lava released nitrate."
+                    }
+                ]
+            },
+            {
+                id: "inference",
+                title: "8. Inferences",
+                category: "Information & Ideas",
+                description: "Understanding what the text IMPLIES.",
+                strategyData: {
+                    tests: "Understanding what the text IMPLIES but does not directly state.",
+                    must: ["Make logical conclusions based on text only", "Avoid extreme interpretations"],
+                    traps: ["Adding your own knowledge instead of using only the text"]
+                },
+                skillProfile: [40, 90, 10, 80, 50],
+                questions: [
+                    {
+                        difficulty: "Medium",
+                        text: "Johnson hosted weekly get-togethers where attendees read and discussed work. These gatherings could therefore serve as...",
+                        options: [
+                            "an occasion for companies to put on plays.",
+                            "an opportunity for Johnson to get feedback on her plays.",
+                            "a way to learn about plays in other cities.",
+                            "subject matter for future plays."
+                        ],
+                        correct: 1,
+                        rationale: "<br><strong>Correct (B):</strong> 'Discussing work' implies receiving feedback."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "Sherlock Holmes adaptations used to be expensive due to copyright. Copyright ended in 2014. Adaptations are likely to increase because...",
+                        options: [
+                            "stories will be hard to find.",
+                            "interest in detectives will grow.",
+                            "producing adaptations will become easier and less expensive.",
+                            "fees will be returned."
+                        ],
+                        correct: 2,
+                        rationale: "<br><strong>Correct (C):</strong> If copyright made it expensive, ending copyright makes it less expensive."
+                    }
+                ]
             },
             {
                 id: "boundaries",
-                title: "Boundaries",
+                title: "9. Boundaries",
                 category: "Standard English Conventions",
-                description: "Use punctuation to link clauses correctly.",
-                strategies: `
-                    <p>Focus on separating Independent Clauses (sentences that stand alone).</p>
-                    <ul class="list-none space-y-4 mt-2">
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">1. Period/Semicolon Rule</strong>
-                            A semicolon (;) equals a period (.). If choices differ only by this, both are wrong.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">2. The Colon (:)</strong>
-                            Needs a full sentence BEFORE it. What follows can be anything.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">3. Comma Splices</strong>
-                            NEVER join two full sentences with just a comma. Need Comma + FANBOYS.
-                        </li>
-                    </ul>
-                `,
-                traps: [
-                    "Using a comma before 'that'.",
-                    "Unpaired dashes."
-                ],
+                description: "Sentence boundaries and punctuation.",
+                strategyData: {
+                    tests: "Where a sentence should start/end and what punctuation is valid.",
+                    must: ["Identify Independent clauses", "Identify Dependent clauses", "Check Correct punctuation (period, comma + conjunction, semicolon)"],
+                    traps: ["Comma splice", "Run-on sentence", "Fragment"]
+                },
                 skillProfile: [10, 40, 90, 10, 85],
-                tip: "Exaggerate pauses when reading. Periods are stops. Commas are pauses."
+                questions: [
+                    {
+                        difficulty: "Medium",
+                        text: "In 1959, Dr. Albert Jones founded the Underwater Adventure Seekers, a scuba diving club ______ oldest club for Black divers.",
+                        options: ["club", "club,", "club-", "club, and"],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> The phrase following 'club' is essential to the sentence structure here. No punctuation is needed to separate the restrictive clause."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "Nora de Hoyos Comstock sought to increase Latina representation in corporate ______ founded Las Comadres para las Americas.",
+                        options: ["settings she", "settings, she", "settings and she", "settings. She"],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> We have two independent clauses. A period is the correct way to separate them. 'Settings, she' would be a comma splice."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "Nakalembe doesn't just compile the ______ she also shares her findings with African farmers.",
+                        options: ["information, though;", "information, though,", "information; though", "information though,"],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> A semicolon is needed to separate the two independent clauses. 'Though' logically belongs to the first clause."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "Evidence suggests Machu Picchu was occupied ______ 1420 CE, according to Burger, humans were likely inhabiting the area.",
+                        options: ["earlier. In", "earlier, in", "earlier, which in", "earlier in"],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> Splits two complete sentences. 'In 1420 CE' modifies the start of the next sentence."
+                    }
+                ]
             },
             {
-                id: "texts",
-                title: "Command of Evidence",
-                category: "Information & Ideas",
-                description: "Determine which evidence best supports a claim.",
-                strategies: `
-                    <p>Act as a lawyer proving a case.</p>
-                    <ul class="list-none space-y-4 mt-2">
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">1. Isolate Claim</strong>
-                            Underline the specific hypothesis you need to support.
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">2. Prediction</strong>
-                            What would proof look like? "I need a quote showing X increases Y."
-                        </li>
-                        <li class="pl-0">
-                            <strong class="text-blue-700 block mb-1">3. Eliminate Irrelevance</strong>
-                            Discard choices that quote text accurately but prove a <em>different</em> point.
-                        </li>
-                    </ul>
-                `,
-                traps: [
-                    "Matching keywords without matching logic.",
-                    "Confusing archaic language in poetry."
-                ],
-                skillProfile: [70, 80, 20, 95, 40],
-                tip: "For graph questions, look for outliers or highest/lowest points."
+                id: "form-structure",
+                title: "10. Form, Structure, Sense",
+                category: "Standard English Conventions",
+                description: "Grammar accuracy and logical sentence construction.",
+                strategyData: {
+                    tests: "Grammar accuracy and logical sentence construction.",
+                    must: ["Pronoun clarity", "Subject-verb agreement", "Modifier placement", "Logical order", "Parallel structure"],
+                    traps: ["Misplaced modifiers", "Unclear pronouns", "Parallelism mistakes"]
+                },
+                skillProfile: [10, 30, 95, 10, 70],
+                questions: [
+                    {
+                        difficulty: "Hard",
+                        text: "Emily Dickinson wrote many poems. She copied 800 of ______ into homemade booklets.",
+                        options: ["them", "this", "that", "it"],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> 'Poems' is plural, so we need the plural pronoun 'them'."
+                    },
+                    {
+                        difficulty: "Hard",
+                        text: "Because a cycle of lunar phases ______ 29.5 days to complete, it's possible to observe two full moons in a month.",
+                        options: ["are taking", "have taken", "take", "takes"],
+                        correct: 3,
+                        rationale: "<br><strong>Correct (D):</strong> 'Cycle' is singular. Therefore, the verb must be singular ('takes')."
+                    },
+                    {
+                        difficulty: "Medium",
+                        text: "Ellen Ochoa left her position at NASA ______ the astronaut training program.",
+                        options: ["to join", "is joining", "joined", "joins"],
+                        correct: 0,
+                        rationale: "<br><strong>Correct (A):</strong> 'To join' correctly creates a subordinate clause explaining *why* she left."
+                    }
+                ]
             }
         ];
 
-        // --- APP STATE ---
-        let currentThemeIndex = 0;
-        let masteredThemes = new Set();
-        let radarChartInstance = null;
+        const essayQuestions = [
+            "What's an object that people associate with you?",
+            "What is your perfect day?",
+            "What's your 'Roman Empire' (something you think about constantly)?",
+            "If you won $100 million but HAD to donate $1 million to two charities, which ones and why?",
+            "What is your first memory? (No matter how small)",
+            "What's a skill you don't have but wish you did?",
+            "What's a place so small it shouldn't have a name, but means the world to you?",
+            "What has your mom taught you?",
+            "Why would you be useful in a Zombie Apocalypse?",
+            "What's a funny story you do NOT want your family to tell?",
+            "What's something you used to believe but don't anymore?",
+            "What job would you find impossible to do no matter the pay?",
+            "What fictional character would you want as a friend?",
+            "What hypocrisy annoys you the most?",
+            "Three objects from your room that define you?",
+            "A time you laughed so hard you cried?",
+            "If you had a clone, what would you make them do?"
+        ];
 
-        // --- ELEMENTS ---
-        const sidebarNav = document.getElementById('sidebar-nav');
-        const mobileNav = document.getElementById('mobile-nav');
-        const welcomeView = document.getElementById('welcome-view');
-        const themeView = document.getElementById('theme-view');
-        
-        // Theme Elements
-        const themeTitle = document.getElementById('theme-title');
-        const themeDesc = document.getElementById('theme-description');
-        const themeCat = document.getElementById('theme-category');
-        const strategyContent = document.getElementById('strategy-content');
-        const trapsList = document.getElementById('traps-list');
-        const proTip = document.getElementById('pro-tip');
-        const markMasteredBtn = document.getElementById('mark-mastered-btn');
-        const masteredIcon = document.getElementById('mastered-icon');
-        const masteredText = document.getElementById('mastered-text');
-        
-        // Progress
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
+        // --- APP STATE ---
+        let currentModuleIndex = 0;
+        let currentQuestionIndex = 0;
+        let masteredModules = new Set();
+        let radarChart = null;
 
         // --- INIT ---
         function init() {
-            renderNav();
+            renderSidebar();
+            renderMobileNav();
             updateProgress();
-            
-            // Check for saved state (optional local storage could go here)
+            renderGuideTable();
         }
 
-        // --- NAVIGATION RENDERING ---
-        function renderNav() {
-            sidebarNav.innerHTML = '';
-            mobileNav.innerHTML = '<option value="" disabled selected>Select a Theme</option>';
+        function renderGuideTable() {
+            const tbody = document.getElementById('guide-table-body');
+            tbody.innerHTML = satData.map(m => `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-4 font-medium text-slate-500">${m.category}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800">${m.title.replace(/^\d+\.\s/,'')}</td>
+                    <td class="px-6 py-4">${m.strategyData.tests}</td>
+                    <td class="px-6 py-4"><ul class="list-disc pl-4 text-xs space-y-1">${m.strategyData.must.map(i=>`<li>${i}</li>`).join('')}</ul></td>
+                    <td class="px-6 py-4 text-rose-600 font-medium text-xs"><ul class="list-disc pl-4 space-y-1">${m.strategyData.traps.map(i=>`<li>${i}</li>`).join('')}</ul></td>
+                </tr>
+            `).join('');
+        }
 
-            satData.forEach((theme, index) => {
-                // Desktop Sidebar Button
-                const btn = document.createElement('button');
-                btn.className = `theme-btn w-full text-left px-4 py-3 rounded-md text-sm font-medium text-slate-600 border-l-4 border-transparent transition-all mb-1 hover:bg-slate-50`;
-                btn.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span>${theme.title}</span>
-                        ${masteredThemes.has(theme.id) ? '<span class="text-emerald-500 font-bold">&#10003;</span>' : ''}
+        // --- NAVIGATION ---
+        function renderSidebar() {
+            const nav = document.getElementById('sidebar-nav');
+            nav.innerHTML = satData.map((m, i) => `
+                <button onclick="loadModule(${i})" class="theme-btn w-full text-left px-4 py-3 rounded-md text-sm font-medium text-slate-600 border-l-4 border-transparent transition-all mb-1 hover:bg-slate-100 flex justify-between">
+                    <span class="truncate">${m.title}</span>
+                    ${masteredModules.has(m.id) ? '<span class="text-emerald-500">✓</span>' : ''}
+                </button>
+            `).join('');
+        }
+
+        function renderMobileNav() {
+            const select = document.getElementById('mobile-nav');
+            select.innerHTML = '<option disabled selected>Select Module</option>' + 
+                satData.map((m, i) => `<option value="${i}">${masteredModules.has(m.id) ? '✓ ' : ''}${m.title}</option>`).join('') +
+                '<option value="brainstorming">✨ Essay Ideas</option>' + 
+                '<option value="master">📘 Master Guide</option>' +
+                '<option value="progress">📊 Progress Tracker</option>';
+            
+            select.onchange = (e) => {
+                const val = e.target.value;
+                if(val === 'brainstorming') loadBrainstorming();
+                else if(val === 'master') loadMasterGuide();
+                else if(val === 'progress') loadProgress();
+                else loadModule(parseInt(val));
+            };
+        }
+
+        // --- CORE FUNCTIONS ---
+        function loadMasterGuide() {
+            document.getElementById('welcome-view').classList.add('hidden');
+            document.getElementById('brainstorming-view').classList.add('hidden');
+            document.getElementById('theme-view').classList.add('hidden');
+            document.getElementById('progress-view').classList.add('hidden');
+            document.getElementById('master-guide-view').classList.remove('hidden');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function loadBrainstorming() {
+            document.getElementById('welcome-view').classList.add('hidden');
+            document.getElementById('theme-view').classList.add('hidden');
+            document.getElementById('master-guide-view').classList.add('hidden');
+            document.getElementById('progress-view').classList.add('hidden');
+            document.getElementById('brainstorming-view').classList.remove('hidden');
+            
+            const grid = document.getElementById('brainstorm-grid');
+            grid.innerHTML = essayQuestions.map((q, i) => `
+                <div class="brainstorm-card bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-2 h-full bg-indigo-500 transition-all group-hover:w-full opacity-10"></div>
+                    <span class="text-4xl mb-4 opacity-50">#${i+1}</span>
+                    <p class="text-lg font-serif text-slate-800 font-medium relative z-10">${q}</p>
+                </div>
+            `).join('');
+
+             window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function loadProgress() {
+            document.getElementById('welcome-view').classList.add('hidden');
+            document.getElementById('brainstorming-view').classList.add('hidden');
+            document.getElementById('theme-view').classList.add('hidden');
+            document.getElementById('master-guide-view').classList.add('hidden');
+            document.getElementById('progress-view').classList.remove('hidden');
+
+            // 1. Calculate Stats by Category
+            const categories = {};
+            satData.forEach(m => {
+                if (!categories[m.category]) categories[m.category] = { total: 0, mastered: 0 };
+                categories[m.category].total++;
+                if (masteredModules.has(m.id)) categories[m.category].mastered++;
+            });
+
+            const statsContainer = document.getElementById('category-stats-container');
+            statsContainer.innerHTML = Object.keys(categories).map(cat => {
+                const data = categories[cat];
+                const pct = Math.round((data.mastered / data.total) * 100);
+                return `
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">${cat}</h5>
+                        <div class="flex items-end gap-2 mb-2">
+                            <span class="text-3xl font-bold text-slate-800">${pct}%</span>
+                            <span class="text-sm text-slate-500 mb-1">(${data.mastered}/${data.total})</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: ${pct}%"></div>
+                        </div>
                     </div>
                 `;
-                btn.onclick = () => loadTheme(index);
-                sidebarNav.appendChild(btn);
+            }).join('');
 
-                // Mobile Option
-                const opt = document.createElement('option');
-                opt.value = index;
-                // Add checkmark symbol to text if mastered
-                opt.text = (masteredThemes.has(theme.id) ? "✓ " : "") + theme.title;
-                mobileNav.appendChild(opt);
-            });
+            // 2. Render Module Audit List
+            const auditList = document.getElementById('progress-audit-list');
+            auditList.innerHTML = satData.map(m => {
+                const isMastered = masteredModules.has(m.id);
+                return `
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center ${isMastered ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}">
+                                ${isMastered ? '✓' : '•'}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">${m.title}</h4>
+                                <p class="text-xs text-slate-500">${m.category}</p>
+                            </div>
+                        </div>
+                        <button onclick="loadModule(${satData.indexOf(m)})" class="text-xs font-bold text-blue-600 hover:text-blue-800 px-3 py-1 rounded-full bg-blue-50 hover:bg-blue-100">
+                            Review &rarr;
+                        </button>
+                    </div>
+                `;
+            }).join('');
 
-            // Mobile Nav Event Listener
-            mobileNav.onchange = (e) => loadTheme(parseInt(e.target.value));
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // --- LOAD CONTENT ---
-        function loadTheme(index) {
-            currentThemeIndex = index;
+        function resetProgress() {
+            if(confirm("Are you sure you want to reset all progress?")) {
+                masteredModules.clear();
+                updateProgress();
+                loadProgress(); // Re-render current view
+                renderSidebar(); // Update ticks
+            }
+        }
+
+        function loadModule(index) {
+            currentModuleIndex = index;
+            currentQuestionIndex = 0;
             const data = satData[index];
 
-            // UI Switch
-            welcomeView.classList.add('hidden');
-            themeView.classList.remove('hidden');
+            // UI Switches
+            document.getElementById('welcome-view').classList.add('hidden');
+            document.getElementById('brainstorming-view').classList.add('hidden');
+            document.getElementById('master-guide-view').classList.add('hidden');
+            document.getElementById('progress-view').classList.add('hidden');
+            document.getElementById('theme-view').classList.remove('hidden');
+
+            // Update Header
+            document.getElementById('theme-title').innerText = data.title;
+            document.getElementById('theme-description').innerText = data.description;
+            document.getElementById('theme-category').innerText = data.category;
             
-            // Highlight Desktop Nav
-            const navBtns = document.querySelectorAll('.theme-btn');
-            navBtns.forEach((btn, i) => {
-                if(i === index) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
+            // Generate Strategy Content HTML
+            const stratHtml = `
+                <h4>What It Tests</h4>
+                <p class="mb-4 text-sm">${data.strategyData.tests}</p>
+                
+                <h4>You Must</h4>
+                <ul>
+                    ${data.strategyData.must.map(item => `<li>${item}</li>`).join('')}
+                </ul>
 
-            // Sync Mobile Select (if loaded via Desktop click)
-            mobileNav.value = index;
+                <h4>Common Traps</h4>
+                <ul class="strat-list-red">
+                    ${data.strategyData.traps.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            `;
+            document.getElementById('strategy-content').innerHTML = stratHtml;
 
-            // Populate Text Content
-            themeTitle.textContent = data.title;
-            themeDesc.textContent = data.description;
-            themeCat.textContent = data.category;
-            strategyContent.innerHTML = data.strategies;
-            proTip.textContent = data.tip;
-
-            // Populate Traps List
-            trapsList.innerHTML = '';
-            data.traps.forEach(trap => {
-                const li = document.createElement('li');
-                li.className = "flex items-start gap-2";
-                li.innerHTML = `<span class="text-rose-400 mt-1">•</span> <span>${trap}</span>`;
-                trapsList.appendChild(li);
-            });
-
-            // Update Mastered Button UI
-            updateMasteredButtonState(data.id);
-
-            // Button Logic
-            markMasteredBtn.onclick = (e) => {
-                e.preventDefault(); // Prevent double taps causing issues
-                toggleMastered(data.id);
-            };
-
-            // Render/Update Chart
+            updateMasteredBtn(data.id);
             renderChart(data.skillProfile);
+            renderQuestion();
 
-            // Scroll Logic: Only scroll main content to top, not whole body (keeps header visible)
-            // On mobile, scroll to the theme start
-            const mainArea = document.getElementById('main-content-area');
-            if(window.innerWidth < 768) {
-                // Scroll window to just below the sticky nav
-                 window.scrollTo({ top: 100, behavior: 'smooth' });
+            // Highlight Nav
+            document.querySelectorAll('.theme-btn').forEach((b, i) => {
+                b.classList.toggle('active', i === index);
+            });
+
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // --- QUIZ LOGIC ---
+        function renderQuestion() {
+            const module = satData[currentModuleIndex];
+            const area = document.getElementById('quiz-content-area');
+            const tracker = document.getElementById('question-tracker');
+            
+            document.getElementById('feedback-area').classList.add('hidden');
+            
+            if (!module.questions || module.questions.length === 0) {
+                area.innerHTML = '<div class="text-center text-slate-400 italic py-10">No specific practice questions available for this module yet.</div>';
+                tracker.innerText = "0 Questions";
+                return;
+            }
+
+            const q = module.questions[currentQuestionIndex];
+            tracker.innerText = `Question ${currentQuestionIndex + 1} of ${module.questions.length}`;
+            
+            document.getElementById('question-text').innerHTML = q.text;
+            const badge = document.getElementById('difficulty-badge');
+            badge.innerText = q.difficulty;
+            badge.className = `px-2 py-0.5 rounded text-xs font-bold ${getDifficultyColor(q.difficulty)}`;
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-4 rounded-lg border border-slate-200 text-slate-700 font-medium transition-all shadow-sm bg-white";
+                btn.innerHTML = `<span class="font-bold mr-3 text-slate-400">${String.fromCharCode(65+i)}.</span> ${opt}`;
+                btn.onclick = () => checkAnswer(i, btn);
+                optsContainer.appendChild(btn);
+            });
+
+            document.getElementById('next-question-btn').onclick = nextQuestion;
+        }
+
+        function getDifficultyColor(diff) {
+            if (diff === 'Easy') return 'bg-emerald-100 text-emerald-700';
+            if (diff === 'Medium') return 'bg-amber-100 text-amber-700';
+            return 'bg-rose-100 text-rose-700';
+        }
+
+        function checkAnswer(selectedIndex, btn) {
+            const module = satData[currentModuleIndex];
+            const q = module.questions[currentQuestionIndex];
+            const feedbackArea = document.getElementById('feedback-area');
+            const feedbackBox = document.getElementById('feedback-box');
+            
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.disabled = true);
+
+            if (selectedIndex === q.correct) {
+                btn.classList.add('correct');
+                feedbackBox.className = "p-4 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-900";
+                feedbackBox.innerHTML = `<strong class="block mb-1">✅ Correct!</strong>${q.rationale}`;
             } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                btn.classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackBox.className = "p-4 rounded-lg bg-rose-50 border border-rose-100 text-rose-900";
+                feedbackBox.innerHTML = `<strong class="block mb-1">❌ Incorrect.</strong>${q.rationale}`;
+            }
+            feedbackArea.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            const module = satData[currentModuleIndex];
+            if (currentQuestionIndex < module.questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                alert("Module Complete! Marking as Mastered.");
+                toggleMastered(module.id);
             }
         }
 
-        // --- MASTERY LOGIC ---
         function toggleMastered(id) {
-            if (masteredThemes.has(id)) {
-                masteredThemes.delete(id);
-            } else {
-                masteredThemes.add(id);
-                // Simple confetti effect or feedback could go here
-            }
-            updateMasteredButtonState(id);
-            renderNav(); // Re-render lists to show checkmarks
-            
-            // Re-apply active class to desktop nav
-            const navBtns = document.querySelectorAll('.theme-btn');
-            if(navBtns[currentThemeIndex]) navBtns[currentThemeIndex].classList.add('active');
-
+            if (masteredModules.has(id)) masteredModules.delete(id);
+            else masteredModules.add(id);
+            updateMasteredBtn(id);
+            renderSidebar();
+            // Note: We don't re-render mobile nav here to avoid closing it if it were open, but simple apps might.
             updateProgress();
         }
 
-        function updateMasteredButtonState(id) {
-            if (masteredThemes.has(id)) {
-                markMasteredBtn.classList.remove('bg-white', 'text-slate-800', 'border-slate-200');
-                markMasteredBtn.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
-                masteredIcon.innerHTML = '&#10003;';
-                masteredText.textContent = "Mastered";
+        function updateMasteredBtn(id) {
+            const btn = document.getElementById('mark-mastered-btn');
+            if (masteredModules.has(id)) {
+                btn.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                btn.innerHTML = '<span>✓</span> Mastered';
             } else {
-                markMasteredBtn.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
-                markMasteredBtn.classList.add('bg-white', 'text-slate-800', 'border-slate-200');
-                masteredIcon.innerHTML = '&#9675;';
-                masteredText.textContent = "Mark as Mastered";
+                btn.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                btn.innerHTML = '<span>&#9675;</span> Mark Mastered';
             }
         }
 
         function updateProgress() {
-            const percent = satData.length > 0 ? Math.round((masteredThemes.size / satData.length) * 100) : 0;
-            progressBar.style.width = `${percent}%`;
-            progressText.textContent = `${percent}%`;
+            const pct = Math.round((masteredModules.size / satData.length) * 100);
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+            document.getElementById('progress-text').innerText = `${pct}%`;
         }
 
-        // --- CHART LOGIC ---
-        function renderChart(skillData) {
+        function renderChart(data) {
             const ctx = document.getElementById('skillRadarChart').getContext('2d');
-            
-            if (radarChartInstance) {
-                radarChartInstance.destroy();
-            }
-
-            radarChartInstance = new Chart(ctx, {
+            if (radarChart) radarChart.destroy();
+            radarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['Vocabulary', 'Logic', 'Grammar', 'Evidence', 'Speed'],
+                    labels: ['Vocab', 'Logic', 'Grammar', 'Evidence', 'Speed'],
                     datasets: [{
-                        label: 'Skill Demand',
-                        data: skillData,
+                        label: 'Skill Level',
+                        data: data,
                         fill: true,
-                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                        borderColor: 'rgb(37, 99, 235)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgb(37, 99, 235)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(37, 99, 235)'
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: '#2563eb',
+                        pointBackgroundColor: '#2563eb'
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { display: true, color: '#e2e8f0' },
-                            grid: { color: '#e2e8f0' },
-                            pointLabels: {
-                                font: { size: 10, family: "'Inter', sans-serif", weight: '600' },
-                                color: '#64748b'
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 100,
-                            ticks: { display: false, stepSize: 25 }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            padding: 10,
-                            cornerRadius: 8,
-                            titleFont: { family: "'Inter', sans-serif" },
-                            bodyFont: { family: "'Inter', sans-serif" }
-                        }
-                    }
+                    scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: {display: false} } },
+                    plugins: { legend: {display: false} },
+                    maintainAspectRatio: false
                 }
             });
         }
 
-        // --- START ---
         init();
-
     </script>
 </body>
 </html>
