@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAT Strategy Nexus + Progress</title>
+    <title>SAT Strategy Nexus Mobile</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -13,6 +13,8 @@
             font-family: 'Inter', sans-serif; 
             background-color: #f8fafc; 
             -webkit-tap-highlight-color: transparent;
+            /* Extra padding for mobile bottom nav */
+            padding-bottom: 80px; 
         }
         .serif-text { font-family: 'Merriweather', serif; }
 
@@ -24,6 +26,7 @@
         }
         @media (min-width: 768px) {
             .chart-container { height: 350px; }
+            body { padding-bottom: 0; }
         }
 
         /* Navigation */
@@ -58,7 +61,11 @@
         .strat-box li { position: relative; padding-left: 1rem; margin-bottom: 0.25rem; line-height: 1.4; font-size: 0.9rem; }
         .strat-box li::before { content: "•"; position: absolute; left: 0; color: #3b82f6; font-weight: bold; }
         .strat-list-red li::before { color: #f43f5e; }
-        .focus-tag { display: inline-block; background: #f1f5f9; color: #64748b; font-size: 0.7rem; padding: 2px 6px; rounded: 4px; font-weight: 600; margin-bottom: 0.5rem; }
+
+        /* Safe Area for iPhone Home Indicator */
+        .safe-pb {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
 
         html { scroll-behavior: smooth; }
     </style>
@@ -76,7 +83,7 @@
                 </div>
             </div>
             
-            <div class="w-full md:w-1/3 flex flex-col gap-1">
+            <div class="w-full md:w-1/3 flex flex-col gap-1 hidden md:flex">
                 <div class="flex justify-between text-xs font-semibold text-slate-600">
                     <span>Module Mastery</span>
                     <span id="progress-text">0%</span>
@@ -91,17 +98,16 @@
     <!-- Main Layout -->
     <div class="flex flex-col md:flex-row flex-1 max-w-7xl mx-auto w-full">
         
-        <!-- Mobile Nav -->
-        <div class="md:hidden w-full bg-white border-b border-slate-200 p-4 sticky top-[73px] z-40 shadow-sm">
-            <select id="mobile-nav" class="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+        <!-- Mobile Module Selector (Top) -->
+        <div class="md:hidden w-full bg-slate-50 border-b border-slate-200 p-3 sticky top-[73px] z-40">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Jump to Module</label>
+            <select id="mobile-nav" class="w-full p-2 border border-slate-300 rounded-lg bg-white text-slate-900 font-medium focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                 <!-- Injected via JS -->
             </select>
         </div>
 
         <!-- Desktop Sidebar -->
         <aside class="hidden md:flex flex-col w-64 border-r border-slate-200 bg-white md:h-[calc(100vh-80px)] md:sticky md:top-0">
-            
-            <!-- Tools Button Group -->
             <div class="p-3 bg-slate-50 border-b border-slate-200 space-y-2">
                 <button onclick="loadMasterGuide()" class="w-full bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-slate-700 transition flex items-center gap-2 justify-center shadow-sm">
                     <span>📘</span> Master Guide
@@ -110,14 +116,12 @@
                     <span>📊</span> Progress
                 </button>
             </div>
-
             <div class="p-3 border-b border-slate-100 bg-white">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Question Types</h3>
             </div>
             <nav id="sidebar-nav" class="flex-1 overflow-y-auto sidebar-scroll p-2 space-y-1">
                 <!-- Injected via JS -->
             </nav>
-            <!-- Brainstorming Link at Bottom -->
             <div class="p-4 border-t border-slate-100 bg-indigo-50">
                  <button onclick="loadBrainstorming()" class="w-full text-left flex items-center gap-2 text-indigo-700 font-bold text-sm hover:text-indigo-900 transition">
                     <span class="text-lg">✨</span> Essay Ideas
@@ -133,10 +137,9 @@
                 <div class="inline-flex items-center justify-center w-24 h-24 bg-blue-100 rounded-full text-blue-600 text-5xl mb-2 shadow-sm">
                     &#128218;
                 </div>
-                <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight">Your SAT Command Center</h2>
-                <p class="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
-                    Select a module to access specific strategies, traps, and practice questions. 
-                    <br>Use the <strong>Master Guide</strong> for a quick reference of all 10 question types.
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Your SAT Command Center</h2>
+                <p class="text-slate-600 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+                    Select a module to access specific strategies, traps, and practice questions.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
                     <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="loadMasterGuide()">
@@ -157,7 +160,7 @@
             <!-- Master Guide View -->
             <div id="master-guide-view" class="hidden max-w-6xl mx-auto">
                 <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-slate-900">Master Reference Guide</h2>
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Master Reference Guide</h2>
                     <p class="text-slate-500">At-a-glance summary of every SAT Reading & Writing question type.</p>
                 </div>
                 
@@ -185,10 +188,10 @@
             <div id="progress-view" class="hidden max-w-5xl mx-auto">
                 <div class="mb-8 flex justify-between items-end">
                     <div>
-                        <h2 class="text-3xl font-bold text-slate-900">Your Growth</h2>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Your Growth</h2>
                         <p class="text-slate-500">Track your mastery across the 4 domains.</p>
                     </div>
-                    <button onclick="resetProgress()" class="text-sm text-rose-500 hover:text-rose-700 underline">Reset All Progress</button>
+                    <button onclick="resetProgress()" class="text-sm text-rose-500 hover:text-rose-700 underline">Reset</button>
                 </div>
 
                 <!-- Stats Grid -->
@@ -210,7 +213,7 @@
             <!-- Brainstorming View -->
             <div id="brainstorming-view" class="hidden max-w-4xl mx-auto">
                 <div class="mb-8">
-                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Essay Brainstorming Lab</h2>
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Essay Brainstorming Lab</h2>
                     <p class="text-slate-500">Deep questions to unlock your personal narrative.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="brainstorm-grid"></div>
@@ -223,8 +226,8 @@
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row justify-between gap-4">
                     <div>
                         <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wide" id="theme-category">Category</span>
-                        <h2 class="text-3xl font-bold text-slate-900 mt-2" id="theme-title">Title</h2>
-                        <p class="text-slate-500 mt-1" id="theme-description">Desc</p>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" id="theme-title">Title</h2>
+                        <p class="text-slate-500 mt-1 text-sm md:text-base" id="theme-description">Desc</p>
                     </div>
                     <button id="mark-mastered-btn" class="px-6 py-2 rounded-lg border font-semibold flex items-center gap-2 justify-center transition-all bg-white hover:bg-slate-50">
                         <span id="mastered-icon">&#9675;</span> <span id="mastered-text">Mark Mastered</span>
@@ -251,7 +254,7 @@
                         <!-- Interactive Practice Zone -->
                         <div id="practice-zone" class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden relative min-h-[400px]">
                             <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center">
-                                <h3 class="font-bold flex items-center gap-2">
+                                <h3 class="font-bold flex items-center gap-2 text-sm md:text-base">
                                     <span>&#9997;</span> Practice Simulator
                                 </h3>
                                 <div class="text-xs bg-slate-700 px-3 py-1 rounded-full text-slate-300" id="question-tracker">Question 1 of 5</div>
@@ -259,9 +262,9 @@
 
                             <div class="p-6" id="quiz-content-area">
                                 <!-- Dynamic Question Content -->
-                                <div id="question-text" class="serif-text text-lg leading-relaxed text-slate-800 mb-6"></div>
+                                <div id="question-text" class="serif-text text-base md:text-lg leading-relaxed text-slate-800 mb-6"></div>
                                 <div class="flex items-center gap-2 mb-6">
-                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Difficulty:</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Context:</span>
                                     <span id="difficulty-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-600">Medium</span>
                                 </div>
                                 <div id="options-container" class="space-y-3"></div>
@@ -287,6 +290,27 @@
             </div>
 
         </main>
+
+        <!-- Mobile Bottom Nav -->
+        <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 z-50 flex justify-around items-center px-2 py-3 safe-pb shadow-lg">
+            <button onclick="location.reload()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
+                <span class="text-lg">🏠</span>
+                <span class="text-[10px] font-bold uppercase">Home</span>
+            </button>
+            <button onclick="loadMasterGuide()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
+                <span class="text-lg">📘</span>
+                <span class="text-[10px] font-bold uppercase">Guide</span>
+            </button>
+            <button onclick="loadProgress()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
+                <span class="text-lg">📊</span>
+                <span class="text-[10px] font-bold uppercase">Progress</span>
+            </button>
+            <button onclick="loadBrainstorming()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
+                <span class="text-lg">✨</span>
+                <span class="text-[10px] font-bold uppercase">Ideas</span>
+            </button>
+        </div>
+
     </div>
 
     <!-- Application Logic -->
@@ -1051,10 +1075,10 @@
         function renderMobileNav() {
             const select = document.getElementById('mobile-nav');
             select.innerHTML = '<option disabled selected>Select Module</option>' + 
-                satData.map((m, i) => `<option value="${i}">${masteredModules.has(m.id) ? '✓ ' : ''}${m.title}</option>`).join('') +
-                '<option value="brainstorming">✨ Essay Ideas</option>' + 
                 '<option value="master">📘 Master Guide</option>' +
-                '<option value="progress">📊 Progress Tracker</option>';
+                '<option value="progress">📊 Progress Tracker</option>' +
+                satData.map((m, i) => `<option value="${i}">${masteredModules.has(m.id) ? '✓ ' : ''}${m.title}</option>`).join('') +
+                '<option value="brainstorming">✨ Essay Ideas</option>';
             
             select.onchange = (e) => {
                 const val = e.target.value;
