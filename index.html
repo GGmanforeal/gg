@@ -2,95 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SAT Reading & Writing Strategy Nexus</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        /* Base Settings */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+        }
+
+        /* Chart Container - Mobile First Logic */
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            height: 300px;
-            max-height: 350px;
+            height: 300px; /* Default height */
         }
+        
+        /* Adjust chart height for larger screens */
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Active State Styling */
         .theme-btn.active {
-            background-color: #2563eb;
-            color: white;
-            border-left: 4px solid #1e3a8a;
-        }
-        .theme-btn:hover:not(.active) {
             background-color: #eff6ff;
+            color: #2563eb;
+            border-left-color: #2563eb;
+            font-weight: 600;
         }
-        /* Custom scrollbar for sidebar */
-        .sidebar-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        .sidebar-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .sidebar-scroll::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
+        
+        /* Scrollbar Styling for Desktop Sidebar */
+        .sidebar-scroll::-webkit-scrollbar { width: 6px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        /* Smooth Scrolling */
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body class="text-slate-800 h-screen overflow-hidden flex flex-col">
+<body class="text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Application Structure Plan: 
-         The app uses a "Master-Detail" dashboard layout. 
-         Left Sidebar (Desktop) / Top Nav (Mobile): Lists the 8 SAT themes derived from the source image.
-         Main Content Area: dynamic container that updates based on selection.
-         Rationale: This structure allows users to study one module at a time without being overwhelmed.
-         The "Global Progress" bar at the top gamifies the experience, encouraging users to "master" all 8 themes.
-         Data Visualization: A Radar Chart is chosen to show the "Skill Profile" for each question type, distinguishing between 
-         Grammar-heavy vs. Logic-heavy tasks, helping users understand the *nature* of the challenge.
-    -->
-
-    <!-- Visualization & Content Choices:
-         1. Radar Chart (Chart.js): Displays 'Skill Composition' (Vocab, Logic, Grammar, Evidence, Speed). 
-            Goal: Help users identify which mental muscle to flex. 
-            Justification: Radar charts are excellent for multivariate comparison of qualitative profiles.
-         2. Strategy Cards (HTML/Tailwind): Clear, bulleted lists with bold keywords.
-            Goal: Rapid consumption of text-heavy strategy.
-         3. Progress Bar (CSS/JS): Visual feedback on learning.
-            Goal: Engagement and tracking.
+    <!-- Application Structure Plan:
+         MOBILE UPDATE:
+         1. Layout: Switched from "h-screen overflow-hidden" to "min-h-screen" to allow natural scrolling on iOS.
+            This prevents the bottom address bar from hiding content.
+         2. Navigation: Sticky Sidebar for Desktop, Standard document flow for Mobile to ensure stability.
+         3. Touch: Larger hit areas for all interactive elements.
     -->
     
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <!-- Chosen Palette: "Smart Blue" - Slate (backgrounds/text), Blue (primary/interactive), Emerald (success/progress). Minimalistic and academic. -->
+    <!-- Chosen Palette: "Smart Blue" - Consistent with previous version. -->
 
-    <!-- Header / Global Progress -->
-    <header class="bg-white border-b border-slate-200 p-4 shadow-sm z-10">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 text-white font-bold rounded-lg w-10 h-10 flex items-center justify-center text-xl">S</div>
-                <div>
-                    <h1 class="font-bold text-xl text-slate-900">SAT Strategy Nexus</h1>
-                    <p class="text-xs text-slate-500">Digital SAT Reading & Writing Mastery</p>
+    <!-- Header: Sticky on Mobile for easy access to status -->
+    <header class="bg-white border-b border-slate-200 p-4 shadow-sm sticky top-0 z-50 md:relative">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
+            <!-- Logo Section -->
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="bg-blue-600 text-white font-bold rounded-lg w-9 h-9 flex items-center justify-center text-lg shadow-sm">S</div>
+                <div class="leading-tight">
+                    <h1 class="font-bold text-lg md:text-xl text-slate-900">SAT Strategy Nexus</h1>
+                    <p class="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide">Reading & Writing Mastery</p>
                 </div>
             </div>
             
+            <!-- Progress Section -->
             <div class="w-full md:w-1/3 flex flex-col gap-1">
                 <div class="flex justify-between text-xs font-semibold text-slate-600">
                     <span>Mastery Progress</span>
                     <span id="progress-text">0%</span>
                 </div>
-                <div class="w-full bg-slate-200 rounded-full h-2.5">
-                    <div id="progress-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                    <div id="progress-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Layout -->
-    <div class="flex flex-1 overflow-hidden max-w-7xl mx-auto w-full">
+    <!-- Main Wrapper -->
+    <div class="flex flex-col md:flex-row flex-1 max-w-7xl mx-auto w-full">
         
-        <!-- Sidebar Navigation -->
-        <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex">
+        <!-- Mobile Navigation (Dropdown) - Visible only on small screens -->
+        <div class="md:hidden w-full bg-white border-b border-slate-200 p-4 sticky top-[73px] z-40 shadow-sm">
+            <label for="mobile-nav" class="block text-xs font-bold text-slate-500 uppercase mb-1">Select Topic</label>
+            <div class="relative">
+                <select id="mobile-nav" class="w-full p-3 pr-8 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
+                    <!-- Options injected by JS -->
+                </select>
+                <!-- Custom Arrow for Select -->
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                    <span class="text-xs">&#9660;</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Sidebar - Visible only on medium+ screens -->
+        <aside class="hidden md:flex flex-col w-64 border-r border-slate-200 bg-white md:h-[calc(100vh-80px)] md:sticky md:top-0">
             <div class="p-4 border-b border-slate-100 bg-slate-50">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Exam Themes</h3>
             </div>
@@ -99,108 +111,106 @@
             </nav>
         </aside>
 
-        <!-- Mobile Navigation (Dropdown) -->
-        <div class="md:hidden w-full bg-white border-b border-slate-200 p-2">
-            <select id="mobile-nav" class="w-full p-2 border border-slate-300 rounded-md bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <!-- Options injected by JS -->
-            </select>
-        </div>
-
         <!-- Main Content Area -->
-        <main class="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8 scroll-smooth" id="main-content-area">
+        <main class="flex-1 bg-slate-50 p-4 md:p-8 w-full min-h-[80vh]" id="main-content-area">
             
-            <!-- Welcome View (Initial State) -->
-            <div id="welcome-view" class="max-w-3xl mx-auto text-center space-y-8 py-10">
-                <div class="inline-block p-4 bg-blue-100 rounded-full text-blue-600 text-4xl mb-4">
+            <!-- Welcome View -->
+            <div id="welcome-view" class="max-w-2xl mx-auto text-center space-y-6 py-8 md:py-16 px-2">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full text-blue-600 text-4xl mb-2 shadow-sm">
                     &#128218;
                 </div>
-                <h2 class="text-3xl font-bold text-slate-800">Select a Theme to Begin</h2>
-                <p class="text-slate-600 text-lg leading-relaxed">
-                    This interactive guide breaks down the 8 core themes of the Digital SAT Reading & Writing section. 
-                    Select a topic from the menu to reveal high-impact strategies, skill requirements, and actionable tips for finding the right answers.
+                <h2 class="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight">Master the Digital SAT</h2>
+                <p class="text-slate-600 text-base md:text-lg leading-relaxed">
+                    Select a theme from the menu to unlock expert strategies, analyze skill requirements, and track your progress.
                 </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mt-8">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                        <h4 class="font-bold text-slate-800 mb-2 text-lg">Analysis & Logic</h4>
-                        <p class="text-sm text-slate-500">Deep dive into structure, purpose, and connections.</p>
+                <!-- Quick Cards for Mobile Visual Appeal -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mt-8">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-slate-800 mb-1">Craft & Structure</h4>
+                        <p class="text-sm text-slate-500">Words in Context, Text Structure, Connections.</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                        <h4 class="font-bold text-slate-800 mb-2 text-lg">Grammar & Syntax</h4>
-                        <p class="text-sm text-slate-500">Master boundaries, form, and transitions.</p>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <h4 class="font-bold text-slate-800 mb-1">Standard Conventions</h4>
+                        <p class="text-sm text-slate-500">Grammar, Boundaries, Form & Sense.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Dynamic Theme View (Hidden by default) -->
-            <div id="theme-view" class="hidden max-w-5xl mx-auto space-y-6">
+            <!-- Dynamic Theme View -->
+            <div id="theme-view" class="hidden max-w-5xl mx-auto space-y-6 pb-12">
                 
-                <!-- Theme Header -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wide mb-2" id="theme-category">Category</span>
-                        <h2 class="text-3xl font-bold text-slate-800" id="theme-title">Theme Title</h2>
-                        <p class="text-slate-500 mt-1" id="theme-description">Brief description of what this theme covers.</p>
+                <!-- Theme Header Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wide mb-2" id="theme-category">Category</span>
+                            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight" id="theme-title">Theme Title</h2>
+                            <p class="text-sm md:text-base text-slate-500 mt-2" id="theme-description">Brief description of what this theme covers.</p>
+                        </div>
+                        
+                        <!-- Mastered Button -->
+                        <button id="mark-mastered-btn" class="w-full md:w-auto px-6 py-3.5 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm border active:scale-95 touch-manipulation">
+                            <span id="mastered-icon" class="text-xl">&#9675;</span>
+                            <span id="mastered-text">Mark as Mastered</span>
+                        </button>
                     </div>
-                    <button id="mark-mastered-btn" class="px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-sm border">
-                        <span id="mastered-icon" class="text-xl">&#9675;</span>
-                        <span id="mastered-text">Mark as Mastered</span>
-                    </button>
                 </div>
 
-                <!-- Two Column Layout: Strategy & Data -->
+                <!-- Content Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                    <!-- Left: Strategy Content (2/3 width) -->
-                    <div class="lg:col-span-2 space-y-6">
+                    <!-- Left Column: Content (Order 2 on mobile to show chart first? No, strategy first is better) -->
+                    <div class="lg:col-span-2 space-y-6 order-2 lg:order-1">
                         
-                        <!-- Core Strategy Section -->
+                        <!-- Strategies -->
                         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div class="bg-slate-50 border-b border-slate-100 px-6 py-4">
-                                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                                    <span class="text-blue-500">&#9889;</span> High-Yield Strategies
+                            <div class="bg-slate-50 border-b border-slate-100 px-5 py-4">
+                                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                    <span class="text-blue-500 bg-blue-100 w-6 h-6 rounded flex items-center justify-center text-sm">&#9889;</span> 
+                                    High-Yield Strategies
                                 </h3>
                             </div>
-                            <div class="p-6">
-                                <div class="prose prose-slate max-w-none text-slate-600" id="strategy-content">
+                            <div class="p-5 md:p-6">
+                                <div class="prose prose-slate prose-sm md:prose-base max-w-none text-slate-600 space-y-4" id="strategy-content">
                                     <!-- Dynamic Content -->
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Trap Section -->
-                        <div class="bg-rose-50 rounded-xl border border-rose-100 p-6">
-                            <h4 class="text-rose-700 font-bold mb-3 flex items-center gap-2">
-                                <span>&#9888;</span> Common Traps to Avoid
+                        <!-- Traps -->
+                        <div class="bg-rose-50 rounded-xl border border-rose-100 p-5 md:p-6">
+                            <h4 class="text-rose-800 font-bold mb-4 flex items-center gap-2">
+                                <span class="text-lg">&#9888;</span> Common Traps
                             </h4>
-                            <ul class="list-disc list-inside space-y-2 text-rose-800 text-sm" id="traps-list">
+                            <ul class="space-y-3 text-rose-800 text-sm md:text-base" id="traps-list">
                                 <!-- Dynamic List -->
                             </ul>
                         </div>
 
                     </div>
 
-                    <!-- Right: Data Visualization & Quick Stats (1/3 width) -->
-                    <div class="space-y-6">
+                    <!-- Right Column: Visuals & Tips -->
+                    <div class="space-y-6 order-1 lg:order-2">
                         
-                        <!-- Skill Profile Chart -->
+                        <!-- Radar Chart -->
                         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                            <div class="mb-4 text-center">
-                                <h4 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Skill Profile</h4>
-                                <p class="text-xs text-slate-400">What this question types demands</p>
+                            <div class="mb-2 text-center">
+                                <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wide">Skill Profile</h4>
                             </div>
-                            <div class="chart-container">
+                            <!-- Container ensures chart doesn't overflow or squash on mobile -->
+                            <div class="chart-container mx-auto">
                                 <canvas id="skillRadarChart"></canvas>
                             </div>
                         </div>
 
-                        <!-- Tip Card -->
-                        <div class="bg-indigo-50 rounded-xl border border-indigo-100 p-6 shadow-sm">
+                        <!-- Pro Tip -->
+                        <div class="bg-indigo-50 rounded-xl border border-indigo-100 p-5 shadow-sm">
                             <div class="flex items-start gap-3">
-                                <span class="text-2xl">&#128161;</span>
+                                <span class="text-2xl mt-1">&#128161;</span>
                                 <div>
                                     <h5 class="font-bold text-indigo-900 text-sm mb-1">Pro Tip</h5>
-                                    <p class="text-indigo-800 text-sm italic" id="pro-tip">
-                                        Always read the question before the passage.
+                                    <p class="text-indigo-800 text-sm italic leading-relaxed" id="pro-tip">
+                                        Loading tip...
                                     </p>
                                 </div>
                             </div>
@@ -214,9 +224,9 @@
         </main>
     </div>
 
-    <!-- Logic -->
+    <!-- Application Logic -->
     <script>
-        // SAT Data Store derived from user themes and expert knowledge
+        // --- DATA STORE ---
         const satData = [
             {
                 id: "words-in-context",
@@ -224,252 +234,247 @@
                 category: "Craft & Structure",
                 description: "Determine the meaning of a word or phrase based on its context within a passage.",
                 strategies: `
-                    <p class="mb-4">These questions test your vocabulary and ability to understand nuance. Don't just pick the most common definition.</p>
-                    <ul class="space-y-3">
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">1.</span>
-                            <span><strong>The Blank Method:</strong> Cover the choices. Read the sentence and come up with your own word for the blank based on the clues. Then find the choice closest to yours.</span>
+                    <p>These questions test vocabulary and nuance. Avoid picking definitions just because they are common.</p>
+                    <ul class="list-none space-y-4 mt-2">
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">1. The Blank Method</strong>
+                            Cover the choices. Read the sentence and guess your own word based on clues. Then find the match.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">2.</span>
-                            <span><strong>Polarity Check:</strong> Determine if the missing word needs to be positive, negative, or neutral based on transition words (e.g., 'however', 'and').</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">2. Polarity Check</strong>
+                            Is the missing word positive (+), negative (-), or neutral? Look for words like "however" or "and" to guide you.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">3.</span>
-                            <span><strong>Plug It In:</strong> Read the sentence fully with each answer choice plugged in. Eliminate choices that create grammatical errors or logical contradictions.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">3. Plug It In</strong>
+                            Read the full sentence with each choice. Eliminate those that create logical contradictions.
                         </li>
                     </ul>
                 `,
                 traps: [
-                    "Choosing a word simply because it 'sounds smart'.",
-                    "Choosing the primary definition of a word when a secondary meaning is intended.",
-                    "Ignoring 'tone' keywords that suggest a specific emotion."
+                    "Choosing a word because it 'sounds sophisticated'.",
+                    "Ignoring secondary meanings of common words.",
+                    "Overlooking 'tone' keywords."
                 ],
-                skillProfile: [90, 60, 20, 30, 80], // Vocabulary, Logic, Grammar, Evidence, Speed
-                tip: "Focus on the words *immediately surrounding* the blank. They often contain the direct definition or synonym."
+                skillProfile: [90, 60, 20, 30, 80],
+                tip: "Focus on words *immediately surrounding* the blank. They often contain the synonym."
             },
             {
                 id: "text-structure",
-                title: "Text Structure & Purpose",
+                title: "Structure & Purpose",
                 category: "Craft & Structure",
-                description: "Analyze the overall structure of a text or identify the main purpose of a passage.",
+                description: "Analyze the overall structure or identify the main purpose of a text.",
                 strategies: `
-                    <p class="mb-4">You need to step back and look at the "Big Picture". Don't get lost in the details.</p>
-                    <ul class="space-y-3">
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">1.</span>
-                            <span><strong>The 'Why' Filter:</strong> Ask yourself: Why did the author write this specific sentence? Is it to introduce, refute, explain, or conclude?</span>
+                    <p>Step back and look at the "Big Picture". Don't get lost in the details.</p>
+                    <ul class="list-none space-y-4 mt-2">
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">1. The 'Why' Filter</strong>
+                            Why did the author write this sentence? To introduce, refute, or conclude?
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">2.</span>
-                            <span><strong>Identify the Shift:</strong> Look for transition words like "But," "However," or "Although." The main purpose is often found <em>after</em> the shift.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">2. Identify the Shift</strong>
+                            Look for "But," "However," or "Although." The main point is usually <em>after</em> the shift.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">3.</span>
-                            <span><strong>Verb Matching:</strong> Check the verbs in the answer choices (e.g., "criticize," "explain," "contrast"). Do they match the tone of the passage?</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">3. Verb Matching</strong>
+                            Do the answer verbs (e.g., "criticize," "explain") match the passage's tone?
                         </li>
                     </ul>
                 `,
                 traps: [
-                    "Selecting an answer that is true but is only a minor detail, not the main purpose.",
-                    "Confusing the narrator's opinion with a character's opinion."
+                    "Selecting a true detail that isn't the *main* point.",
+                    "Confusing a character's opinion with the narrator's."
                 ],
                 skillProfile: [30, 90, 20, 50, 60],
-                tip: "Read the first and last sentence of the passage carefully. The 'Purpose' is usually bookended there."
+                tip: "Read the first and last sentence carefully. The Purpose is usually bookended there."
             },
             {
                 id: "cross-text",
                 title: "Cross-Text Connections",
                 category: "Information & Ideas",
-                description: "Synthesize information from two distinct texts to find similarities, differences, or relationships.",
+                description: "Synthesize information from two distinct texts to find relationships.",
                 strategies: `
-                    <p class="mb-4">Double passages require you to be a mediator between two authors.</p>
-                    <ul class="space-y-3">
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">1.</span>
-                            <span><strong>Summarize First:</strong> Before looking at choices, mentally summarize Text 1 and Text 2 in simple terms (e.g., 'Text 1 likes X, Text 2 hates X').</span>
+                    <p>You are a mediator between two authors. Be neutral.</p>
+                    <ul class="list-none space-y-4 mt-2">
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">1. Summarize First</strong>
+                            Mentally summarize: "Text 1 says X, Text 2 says Y."
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">2.</span>
-                            <span><strong>Define the Relationship:</strong> Is it Agreement, Disagreement, or Qualification (Agree with a 'but')?</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">2. Define Relationship</strong>
+                            Is it Agreement? Disagreement? Or Qualification (Agree with a 'but')?
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">3.</span>
-                            <span><strong>The Point of Contact:</strong> Identify exactly <em>what</em> topic they are discussing. Eliminate choices that talk about things only one author mentions.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">3. Point of Contact</strong>
+                            Identify exactly <em>what</em> topic they share. Eliminate choices discussing unique topics.
                         </li>
                     </ul>
                 `,
                 traps: [
-                    "Assuming authors disagree on everything just because they disagree on one thing.",
-                    "Answering based on your own knowledge instead of just what is written."
+                    "Assuming total disagreement based on one minor point.",
+                    "Using outside knowledge."
                 ],
                 skillProfile: [40, 95, 20, 80, 50],
-                tip: "For 'How would Author 1 respond to Author 2?' questions, adopt the persona of Author 1. Be strictly limited to their expressed views."
+                tip: "For 'How would Author 1 respond?', adopt Author 1's persona strictly."
             },
             {
                 id: "transitions",
                 title: "Transitions",
                 category: "Expression of Ideas",
-                description: "Select the transition word or phrase that best connects sentences or ideas logically.",
+                description: "Select the word that logically connects two sentences.",
                 strategies: `
-                    <p class="mb-4">This is pure logic. It's about how two sentences relate to each other.</p>
-                    <ul class="space-y-3">
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">1.</span>
-                            <span><strong>The 'No-Option' Test:</strong> Read the sentences <em>without</em> any transition word. Ask: Does sentence 2 continue, contradict, or result from sentence 1?</span>
+                    <p>This is pure logic. How does Sentence B relate to Sentence A?</p>
+                    <ul class="list-none space-y-4 mt-2">
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">1. The 'No-Option' Test</strong>
+                            Read without any transition. Does it continue, contradict, or result?
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">2.</span>
-                            <span><strong>Categorize the Relationship:</strong>
-                                <br>&bull; <strong>Continuation:</strong> Furthermore, Moreover, Additionally.
-                                <br>&bull; <strong>Contrast:</strong> However, Conversely, Nevertheless.
-                                <br>&bull; <strong>Causation:</strong> Therefore, Consequently, Thus.
-                            </span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">2. Categorize</strong>
+                            Group choices: Continuation (Also), Contrast (However), Causation (Thus).
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">3.</span>
-                            <span><strong>Eliminate Synonyms:</strong> If two choices mean the exact same thing (e.g., 'Furthermore' and 'Moreover'), both are usually wrong.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">3. Eliminate Synonyms</strong>
+                            If 'Furthermore' and 'Moreover' are both options, both are likely wrong.
                         </li>
                     </ul>
                 `,
                 traps: [
-                    "Picking a transition that sounds 'smooth' but has the wrong logical meaning.",
-                    "Ignoring punctuation clues around the blank."
+                    "Picking what 'sounds smooth' but has wrong logic.",
+                    "Ignoring punctuation clues."
                 ],
                 skillProfile: [50, 85, 40, 20, 80],
-                tip: "Cross out the transition word in the text and read the bare sentences to see the naked logic flow."
+                tip: "Cross out the transition word and read the bare sentences to see the naked logic."
             },
             {
                 id: "rhetorical-synthesis",
                 title: "Rhetorical Synthesis",
                 category: "Expression of Ideas",
-                description: "Synthesize a set of bulleted notes into a sentence that achieves a specific goal.",
+                description: "Synthesize notes into a sentence achieving a specific goal.",
                 strategies: `
-                    <p class="mb-4">These questions look scary because of the bullet points, but they are actually the easiest. It's a matching game.</p>
-                    <ul class="space-y-3">
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">1.</span>
-                            <span><strong>Identify the Goal:</strong> Ignore the bullets at first. Read the prompt question asking "The student wants to...". Underline the goal (e.g., "emphasize a difference," "introduce the book").</span>
+                    <p>A matching game. The prompt's command is the only thing that matters.</p>
+                    <ul class="list-none space-y-4 mt-2">
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">1. Identify Goal</strong>
+                            Underline the command: "The student wants to [emphasize location]..."
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">2.</span>
-                            <span><strong>Match Goal to Choice:</strong> Find the answer choice that explicitly does what the goal asks. If the goal is to "compare ages," the answer MUST mention ages.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">2. Match Goal to Choice</strong>
+                            Find the choice that explicitly does that. If it asks for location, pick the one with a city/country.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">3.</span>
-                            <span><strong>Ignore Extra Info:</strong> It doesn't matter if an answer choice leaves out information from the bullets. It only matters if it fulfills the specific command.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">3. Ignore Missing Info</strong>
+                            It doesn't matter if the answer leaves out other bullet points.
                         </li>
                     </ul>
                 `,
                 traps: [
-                    "Choosing the answer that includes the most information (the 'summary' trap).",
-                    "Choosing an answer that is grammatically correct but fails to address the specific prompt."
+                    "The 'Summary' trap (picking the choice with the most info).",
+                    "Ignoring the specific command."
                 ],
                 skillProfile: [20, 70, 30, 90, 95],
-                tip: "The prompt is King. If the prompt asks to 'emphasize the location,' pick the answer with a city name, even if it's short."
+                tip: "The prompt is King. Obey the command literally."
             },
             {
                 id: "form-structure-sense",
-                title: "Form, Structure, and Sense",
+                title: "Form, Structure, Sense",
                 category: "Standard English Conventions",
-                description: "Correct errors in grammar, usage, and sentence structure (Subject-Verb Agreement, Pronouns, Modifiers).",
+                description: "Correct errors in grammar (Subject-Verb, Pronouns, Modifiers).",
                 strategies: `
-                    <p class="mb-4">These follow strict rules. Trust the rules, not your 'ear'.</p>
-                    <ul class="space-y-3">
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">1.</span>
-                            <span><strong>Locate the Subject:</strong> Find the main noun doing the action. Ignore prepositional phrases (text between commas or starting with 'of', 'in', 'with'). Ensure the verb matches (Singular/Singular or Plural/Plural).</span>
+                    <p>Trust the rules, not your 'ear'.</p>
+                    <ul class="list-none space-y-4 mt-2">
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">1. Locate Subject</strong>
+                            Find the main noun. Ignore prepositional phrases. Match S/S or P/P.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">2.</span>
-                            <span><strong>Check Verb Tense:</strong> Look at other verbs in the paragraph. Keep the tense consistent unless there is a clear time shift (e.g., 'yesterday', 'will').</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">2. Check Tense</strong>
+                            Keep tense consistent with surrounding verbs unless there's a time shift.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">3.</span>
-                            <span><strong>Dangling Modifiers:</strong> If a sentence starts with a descriptive phrase (e.g., 'Walking down the street,'), the very next word MUST be the person/thing doing the walking.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">3. Dangling Modifiers</strong>
+                            "Walking down the street, the dog..." (The modifier must touch the noun it describes).
                         </li>
                     </ul>
                 `,
                 traps: [
-                    "Thinking 'Data' is singular (it's often treated as plural in academic texts, though usage varies, stick to strict agreement).",
-                    "Confusing 'Its' (possessive) with 'It's' (it is)."
+                    "Thinking 'Data' is singular (treat strict agreement).",
+                    "Confusing 'Its' vs 'It's'."
                 ],
                 skillProfile: [10, 30, 95, 10, 70],
-                tip: "Short is sweet. If multiple options are grammatically correct, the shortest one is usually right (Concision)."
+                tip: "Short is sweet. If grammar is correct, the shortest answer is usually right."
             },
             {
                 id: "boundaries",
                 title: "Boundaries",
                 category: "Standard English Conventions",
-                description: "Use punctuation (commas, semicolons, colons, dashes) to link clauses correctly.",
+                description: "Use punctuation to link clauses correctly.",
                 strategies: `
-                    <p class="mb-4">This is about separating Independent Clauses (sentences that can stand alone).</p>
-                    <ul class="space-y-3">
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">1.</span>
-                            <span><strong>The Period/Semicolon Rule:</strong> A semicolon (;) is grammatically identical to a period (.) on the SAT. If two choices differ only by Period vs. Semicolon, BOTH are usually wrong.</span>
+                    <p>Focus on separating Independent Clauses (sentences that stand alone).</p>
+                    <ul class="list-none space-y-4 mt-2">
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">1. Period/Semicolon Rule</strong>
+                            A semicolon (;) equals a period (.). If choices differ only by this, both are wrong.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">2.</span>
-                            <span><strong>The Colon (:):</strong> A colon needs a full independent clause BEFORE it. What comes after can be a list, an explanation, or a quote.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">2. The Colon (:)</strong>
+                            Needs a full sentence BEFORE it. What follows can be anything.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">3.</span>
-                            <span><strong>Comma Splices:</strong> You CANNOT join two full sentences with just a comma. You need Comma + FANBOYS (For, And, Nor, But, Or, Yet, So).</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">3. Comma Splices</strong>
+                            NEVER join two full sentences with just a comma. Need Comma + FANBOYS.
                         </li>
                     </ul>
                 `,
                 traps: [
-                    "Using a comma before 'that'. (Usually incorrect).",
-                    "Overusing dashes. Dashes act like parentheses; if you open one, you usually need to close it unless it ends the sentence."
+                    "Using a comma before 'that'.",
+                    "Unpaired dashes."
                 ],
                 skillProfile: [10, 40, 90, 10, 85],
-                tip: "Read the sentence and exaggerate the pauses. Semicolons and periods are full stops. Commas are brief pauses."
+                tip: "Exaggerate pauses when reading. Periods are stops. Commas are pauses."
             },
             {
                 id: "texts",
-                title: "Texts (Command of Evidence)",
+                title: "Command of Evidence",
                 category: "Information & Ideas",
-                description: "Determine which piece of textual evidence best supports a specific claim or hypothesis.",
+                description: "Determine which evidence best supports a claim.",
                 strategies: `
-                    <p class="mb-4">These questions often involve literature or poetry. You must act as a lawyer proving a case.</p>
-                    <ul class="space-y-3">
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">1.</span>
-                            <span><strong>Isolate the Claim:</strong> Find the exact sentence that states the argument or hypothesis you need to support. Underline specific variables (e.g., 'temperature increases growth').</span>
+                    <p>Act as a lawyer proving a case.</p>
+                    <ul class="list-none space-y-4 mt-2">
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">1. Isolate Claim</strong>
+                            Underline the specific hypothesis you need to support.
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">2.</span>
-                            <span><strong>Prediction:</strong> Before reading the choices, ask: What would proof look like? (e.g., 'I need a quote showing the plant got bigger when it got hotter').</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">2. Prediction</strong>
+                            What would proof look like? "I need a quote showing X increases Y."
                         </li>
-                        <li class="flex gap-3">
-                            <span class="font-bold text-blue-600">3.</span>
-                            <span><strong>Eliminate Irrelevance:</strong> Many choices will quote the text accurately but prove a <em>different</em> point. Discard them.</span>
+                        <li class="pl-0">
+                            <strong class="text-blue-700 block mb-1">3. Eliminate Irrelevance</strong>
+                            Discard choices that quote text accurately but prove a <em>different</em> point.
                         </li>
                     </ul>
                 `,
                 traps: [
-                    "Choosing a quote just because it contains keywords from the claim, even if the meaning doesn't support the logic.",
-                    "Getting confused by archaic language in poetry. Focus on the generally positive or negative sentiment."
+                    "Matching keywords without matching logic.",
+                    "Confusing archaic language in poetry."
                 ],
                 skillProfile: [70, 80, 20, 95, 40],
-                tip: "If it's a quantitative evidence question (graphs/tables), look for the outliers or the highest/lowest points. The answer usually hides there."
+                tip: "For graph questions, look for outliers or highest/lowest points."
             }
         ];
 
-        // State Management
+        // --- APP STATE ---
         let currentThemeIndex = 0;
         let masteredThemes = new Set();
         let radarChartInstance = null;
 
-        // DOM Elements
+        // --- ELEMENTS ---
         const sidebarNav = document.getElementById('sidebar-nav');
         const mobileNav = document.getElementById('mobile-nav');
-        const mainContent = document.getElementById('main-content-area');
         const welcomeView = document.getElementById('welcome-view');
         const themeView = document.getElementById('theme-view');
         
-        // Theme View Elements
+        // Theme Elements
         const themeTitle = document.getElementById('theme-title');
         const themeDesc = document.getElementById('theme-description');
         const themeCat = document.getElementById('theme-category');
@@ -480,129 +485,145 @@
         const masteredIcon = document.getElementById('mastered-icon');
         const masteredText = document.getElementById('mastered-text');
         
-        // Progress Elements
+        // Progress
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
 
-        // Initialization
+        // --- INIT ---
         function init() {
             renderNav();
             updateProgress();
+            
+            // Check for saved state (optional local storage could go here)
         }
 
-        // Render Navigation
+        // --- NAVIGATION RENDERING ---
         function renderNav() {
             sidebarNav.innerHTML = '';
             mobileNav.innerHTML = '<option value="" disabled selected>Select a Theme</option>';
 
             satData.forEach((theme, index) => {
-                // Desktop Sidebar
+                // Desktop Sidebar Button
                 const btn = document.createElement('button');
-                btn.className = `theme-btn w-full text-left px-4 py-3 text-sm font-medium text-slate-600 border-l-4 border-transparent transition-all`;
+                btn.className = `theme-btn w-full text-left px-4 py-3 rounded-md text-sm font-medium text-slate-600 border-l-4 border-transparent transition-all mb-1 hover:bg-slate-50`;
                 btn.innerHTML = `
                     <div class="flex justify-between items-center">
                         <span>${theme.title}</span>
-                        ${masteredThemes.has(theme.id) ? '<span class="text-emerald-500 text-xs">&#10003;</span>' : ''}
+                        ${masteredThemes.has(theme.id) ? '<span class="text-emerald-500 font-bold">&#10003;</span>' : ''}
                     </div>
                 `;
                 btn.onclick = () => loadTheme(index);
                 sidebarNav.appendChild(btn);
 
-                // Mobile Dropdown
+                // Mobile Option
                 const opt = document.createElement('option');
                 opt.value = index;
-                opt.text = theme.title;
+                // Add checkmark symbol to text if mastered
+                opt.text = (masteredThemes.has(theme.id) ? "✓ " : "") + theme.title;
                 mobileNav.appendChild(opt);
             });
 
-            // Mobile Nav Event
-            mobileNav.onchange = (e) => loadTheme(e.target.value);
+            // Mobile Nav Event Listener
+            mobileNav.onchange = (e) => loadTheme(parseInt(e.target.value));
         }
 
-        // Load Theme Content
+        // --- LOAD CONTENT ---
         function loadTheme(index) {
             currentThemeIndex = index;
             const data = satData[index];
 
-            // Update UI State
+            // UI Switch
             welcomeView.classList.add('hidden');
             themeView.classList.remove('hidden');
             
-            // Highlight Nav
+            // Highlight Desktop Nav
             const navBtns = document.querySelectorAll('.theme-btn');
             navBtns.forEach((btn, i) => {
-                if(i == index) btn.classList.add('active');
+                if(i === index) btn.classList.add('active');
                 else btn.classList.remove('active');
             });
 
-            // Populate Content
+            // Sync Mobile Select (if loaded via Desktop click)
+            mobileNav.value = index;
+
+            // Populate Text Content
             themeTitle.textContent = data.title;
             themeDesc.textContent = data.description;
             themeCat.textContent = data.category;
             strategyContent.innerHTML = data.strategies;
             proTip.textContent = data.tip;
 
-            // Populate Traps
+            // Populate Traps List
             trapsList.innerHTML = '';
             data.traps.forEach(trap => {
                 const li = document.createElement('li');
-                li.textContent = trap;
+                li.className = "flex items-start gap-2";
+                li.innerHTML = `<span class="text-rose-400 mt-1">•</span> <span>${trap}</span>`;
                 trapsList.appendChild(li);
             });
 
-            // Mastered State
+            // Update Mastered Button UI
             updateMasteredButtonState(data.id);
 
-            // Button Action
-            markMasteredBtn.onclick = () => toggleMastered(data.id);
+            // Button Logic
+            markMasteredBtn.onclick = (e) => {
+                e.preventDefault(); // Prevent double taps causing issues
+                toggleMastered(data.id);
+            };
 
-            // Render Chart
+            // Render/Update Chart
             renderChart(data.skillProfile);
 
-            // Scroll to top on mobile
-            mainContent.scrollTop = 0;
+            // Scroll Logic: Only scroll main content to top, not whole body (keeps header visible)
+            // On mobile, scroll to the theme start
+            const mainArea = document.getElementById('main-content-area');
+            if(window.innerWidth < 768) {
+                // Scroll window to just below the sticky nav
+                 window.scrollTo({ top: 100, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
-        // Toggle Mastery
+        // --- MASTERY LOGIC ---
         function toggleMastered(id) {
             if (masteredThemes.has(id)) {
                 masteredThemes.delete(id);
             } else {
                 masteredThemes.add(id);
+                // Simple confetti effect or feedback could go here
             }
             updateMasteredButtonState(id);
-            renderNav(); // Re-render to show checkmarks
+            renderNav(); // Re-render lists to show checkmarks
             
-            // Re-highlight active class since re-render wiped it
+            // Re-apply active class to desktop nav
             const navBtns = document.querySelectorAll('.theme-btn');
-            navBtns[currentThemeIndex].classList.add('active');
+            if(navBtns[currentThemeIndex]) navBtns[currentThemeIndex].classList.add('active');
 
             updateProgress();
         }
 
-        // Update Button Visuals
         function updateMasteredButtonState(id) {
             if (masteredThemes.has(id)) {
                 markMasteredBtn.classList.remove('bg-white', 'text-slate-800', 'border-slate-200');
-                markMasteredBtn.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-200');
+                markMasteredBtn.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
                 masteredIcon.innerHTML = '&#10003;';
                 masteredText.textContent = "Mastered";
             } else {
-                markMasteredBtn.classList.remove('bg-emerald-100', 'text-emerald-700', 'border-emerald-200');
+                markMasteredBtn.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
                 markMasteredBtn.classList.add('bg-white', 'text-slate-800', 'border-slate-200');
                 masteredIcon.innerHTML = '&#9675;';
                 masteredText.textContent = "Mark as Mastered";
             }
         }
 
-        // Global Progress
         function updateProgress() {
-            const percent = Math.round((masteredThemes.size / satData.length) * 100);
+            const percent = satData.length > 0 ? Math.round((masteredThemes.size / satData.length) * 100) : 0;
             progressBar.style.width = `${percent}%`;
             progressText.textContent = `${percent}%`;
         }
 
-        // Chart Rendering
+        // --- CHART LOGIC ---
         function renderChart(skillData) {
             const ctx = document.getElementById('skillRadarChart').getContext('2d');
             
@@ -615,11 +636,12 @@
                 data: {
                     labels: ['Vocabulary', 'Logic', 'Grammar', 'Evidence', 'Speed'],
                     datasets: [{
-                        label: 'Skill Requirement Level',
+                        label: 'Skill Demand',
                         data: skillData,
                         fill: true,
                         backgroundColor: 'rgba(37, 99, 235, 0.2)',
                         borderColor: 'rgb(37, 99, 235)',
+                        borderWidth: 2,
                         pointBackgroundColor: 'rgb(37, 99, 235)',
                         pointBorderColor: '#fff',
                         pointHoverBackgroundColor: '#fff',
@@ -629,25 +651,34 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    elements: {
-                        line: { borderWidth: 3 }
-                    },
                     scales: {
                         r: {
-                            angleLines: { display: true },
+                            angleLines: { display: true, color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: {
+                                font: { size: 10, family: "'Inter', sans-serif", weight: '600' },
+                                color: '#64748b'
+                            },
                             suggestedMin: 0,
                             suggestedMax: 100,
-                            ticks: { display: false } // Hide numbers for cleaner look
+                            ticks: { display: false, stepSize: 25 }
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 10,
+                            cornerRadius: 8,
+                            titleFont: { family: "'Inter', sans-serif" },
+                            bodyFont: { family: "'Inter', sans-serif" }
+                        }
                     }
                 }
             });
         }
 
-        // Start App
+        // --- START ---
         init();
 
     </script>
