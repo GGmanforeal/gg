@@ -109,10 +109,10 @@
         <!-- Desktop Sidebar -->
         <aside class="hidden md:flex flex-col w-64 border-r border-slate-200 bg-white md:h-[calc(100vh-80px)] md:sticky md:top-0">
             <div class="p-3 bg-slate-50 border-b border-slate-200 space-y-2">
-                <button onclick="window.loadMasterGuide()" class="w-full bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-slate-700 transition flex items-center gap-2 justify-center shadow-sm">
+                <button onclick="loadMasterGuide()" class="w-full bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-slate-700 transition flex items-center gap-2 justify-center shadow-sm">
                     <span>📘</span> Master Guide
                 </button>
-                <button onclick="window.loadProgress()" class="w-full bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-md text-sm font-bold hover:bg-slate-50 transition flex items-center gap-2 justify-center shadow-sm">
+                <button onclick="loadProgress()" class="w-full bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-md text-sm font-bold hover:bg-slate-50 transition flex items-center gap-2 justify-center shadow-sm">
                     <span>📊</span> Progress
                 </button>
             </div>
@@ -123,7 +123,7 @@
                 <!-- Injected via JS -->
             </nav>
             <div class="p-4 border-t border-slate-100 bg-indigo-50">
-                 <button onclick="window.loadBrainstorming()" class="w-full text-left flex items-center gap-2 text-indigo-700 font-bold text-sm hover:text-indigo-900 transition">
+                 <button onclick="loadBrainstorming()" class="w-full text-left flex items-center gap-2 text-indigo-700 font-bold text-sm hover:text-indigo-900 transition">
                     <span class="text-lg">✨</span> Essay Ideas
                  </button>
             </div>
@@ -142,15 +142,15 @@
                     Select a module to access specific strategies, traps, and practice questions.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
-                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="window.loadMasterGuide()">
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="loadMasterGuide()">
                         <h4 class="font-bold text-slate-900">📘 Master Guide</h4>
                         <p class="text-xs text-slate-500 mt-1">Summary table of concepts.</p>
                     </div>
-                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="window.loadProgress()">
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="loadProgress()">
                         <h4 class="font-bold text-slate-900">📊 Progress</h4>
                         <p class="text-xs text-slate-500 mt-1">Track your growth.</p>
                     </div>
-                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="window.loadBrainstorming()">
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 hover:border-blue-300 transition cursor-pointer" onclick="loadBrainstorming()">
                         <h4 class="font-bold text-indigo-700">✨ Essay Lab</h4>
                         <p class="text-xs text-slate-500 mt-1">Creative brainstorming.</p>
                     </div>
@@ -191,7 +191,7 @@
                         <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Your Growth</h2>
                         <p class="text-slate-500">Track your mastery across the 4 domains.</p>
                     </div>
-                    <button onclick="window.resetProgress()" class="text-sm text-rose-500 hover:text-rose-700 underline">Reset</button>
+                    <button onclick="resetProgress()" class="text-sm text-rose-500 hover:text-rose-700 underline">Reset</button>
                 </div>
 
                 <!-- Stats Grid -->
@@ -229,7 +229,7 @@
                         <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" id="theme-title">Title</h2>
                         <p class="text-slate-500 mt-1 text-sm md:text-base" id="theme-description">Desc</p>
                     </div>
-                    <button id="mark-mastered-btn" class="px-6 py-2 rounded-lg border font-semibold flex items-center gap-2 justify-center transition-all bg-white hover:bg-slate-50" onclick="window.toggleMastered(satData[currentModuleIndex].id)">
+                    <button id="mark-mastered-btn" class="px-6 py-2 rounded-lg border font-semibold flex items-center gap-2 justify-center transition-all bg-white hover:bg-slate-50">
                         <span id="mastered-icon">&#9675;</span> <span id="mastered-text">Mark Mastered</span>
                     </button>
                 </div>
@@ -272,7 +272,7 @@
                                 <!-- Feedback & Navigation -->
                                 <div id="feedback-area" class="hidden mt-6 pt-6 border-t border-slate-100">
                                     <div id="feedback-box" class="p-4 rounded-lg mb-4 text-sm leading-relaxed"></div>
-                                    <button id="next-question-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2" onclick="window.nextQuestion()">
+                                    <button id="next-question-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2">
                                         Next Question <span>&rarr;</span>
                                     </button>
                                 </div>
@@ -297,15 +297,15 @@
                 <span class="text-lg">🏠</span>
                 <span class="text-[10px] font-bold uppercase">Home</span>
             </button>
-            <button onclick="window.loadMasterGuide()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
+            <button onclick="loadMasterGuide()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
                 <span class="text-lg">📘</span>
                 <span class="text-[10px] font-bold uppercase">Guide</span>
             </button>
-            <button onclick="window.loadProgress()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
+            <button onclick="loadProgress()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
                 <span class="text-lg">📊</span>
                 <span class="text-[10px] font-bold uppercase">Progress</span>
             </button>
-            <button onclick="window.loadBrainstorming()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
+            <button onclick="loadBrainstorming()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600">
                 <span class="text-lg">✨</span>
                 <span class="text-[10px] font-bold uppercase">Ideas</span>
             </button>
@@ -314,19 +314,7 @@
     </div>
 
     <!-- Application Logic -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- FIREBASE SETUP ---
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app';
-        let currentUser = null;
-
+    <script>
         // --- DATA STORE ---
         const satData = [
             {
@@ -1052,63 +1040,57 @@
         let masteredModules = new Set();
         let radarChart = null;
 
-        // --- FIREBASE INIT ---
-        async function initApp() {
+        // --- INIT ---
+        function init() {
             renderSidebar();
             renderMobileNav();
-            // Auth
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (e) { console.error("Auth failed", e); }
-
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    // Setup Listener for Progress
-                    // Path: artifacts/{appId}/users/{uid}/data/progress
-                    const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'progress');
-                    
-                    onSnapshot(docRef, (docSnap) => {
-                        if (docSnap.exists()) {
-                            const data = docSnap.data();
-                            masteredModules = new Set(data.mastered || []);
-                        } else {
-                            masteredModules = new Set();
-                        }
-                        // Update UI
-                        updateMasteredBtn(satData[currentModuleIndex].id);
-                        renderSidebar();
-                        renderMobileNav();
-                        updateProgress();
-                        // If on progress page, reload it to reflect changes
-                        if(!document.getElementById('progress-view').classList.contains('hidden')) {
-                            loadProgress();
-                        }
-                    }, (error) => {
-                        console.error("Error getting progress:", error);
-                    });
-                }
-            });
+            updateProgress();
             renderGuideTable();
         }
 
-        async function saveProgress() {
-            if (!currentUser) return;
-            const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'data', 'progress');
-            try {
-                await setDoc(docRef, { mastered: Array.from(masteredModules) }, { merge: true });
-            } catch (e) {
-                console.error("Error saving progress:", e);
-            }
+        function renderGuideTable() {
+            const tbody = document.getElementById('guide-table-body');
+            tbody.innerHTML = satData.map(m => `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-4 font-medium text-slate-500">${m.category}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800">${m.title.replace(/^\d+\.\s/,'')}</td>
+                    <td class="px-6 py-4">${m.strategyData.tests}</td>
+                    <td class="px-6 py-4"><ul class="list-disc pl-4 text-xs space-y-1">${m.strategyData.must.map(i=>`<li>${i}</li>`).join('')}</ul></td>
+                    <td class="px-6 py-4 text-rose-600 font-medium text-xs"><ul class="list-disc pl-4 space-y-1">${m.strategyData.traps.map(i=>`<li>${i}</li>`).join('')}</ul></td>
+                </tr>
+            `).join('');
+        }
+
+        // --- NAVIGATION ---
+        function renderSidebar() {
+            const nav = document.getElementById('sidebar-nav');
+            nav.innerHTML = satData.map((m, i) => `
+                <button onclick="loadModule(${i})" class="theme-btn w-full text-left px-4 py-3 rounded-md text-sm font-medium text-slate-600 border-l-4 border-transparent transition-all mb-1 hover:bg-slate-100 flex justify-between">
+                    <span class="truncate">${m.title}</span>
+                    ${masteredModules.has(m.id) ? '<span class="text-emerald-500">✓</span>' : ''}
+                </button>
+            `).join('');
+        }
+
+        function renderMobileNav() {
+            const select = document.getElementById('mobile-nav');
+            select.innerHTML = '<option disabled selected>Select Module</option>' + 
+                '<option value="master">📘 Master Guide</option>' +
+                '<option value="progress">📊 Progress Tracker</option>' +
+                satData.map((m, i) => `<option value="${i}">${masteredModules.has(m.id) ? '✓ ' : ''}${m.title}</option>`).join('') +
+                '<option value="brainstorming">✨ Essay Ideas</option>';
+            
+            select.onchange = (e) => {
+                const val = e.target.value;
+                if(val === 'brainstorming') loadBrainstorming();
+                else if(val === 'master') loadMasterGuide();
+                else if(val === 'progress') loadProgress();
+                else loadModule(parseInt(val));
+            };
         }
 
         // --- CORE FUNCTIONS ---
-        // Exporting functions to window so HTML onClick attributes work with type="module"
-        window.loadMasterGuide = function() {
+        function loadMasterGuide() {
             document.getElementById('welcome-view').classList.add('hidden');
             document.getElementById('brainstorming-view').classList.add('hidden');
             document.getElementById('theme-view').classList.add('hidden');
@@ -1117,7 +1099,7 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        window.loadBrainstorming = function() {
+        function loadBrainstorming() {
             document.getElementById('welcome-view').classList.add('hidden');
             document.getElementById('theme-view').classList.add('hidden');
             document.getElementById('master-guide-view').classList.add('hidden');
@@ -1136,7 +1118,7 @@
              window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        window.loadProgress = function() {
+        function loadProgress() {
             document.getElementById('welcome-view').classList.add('hidden');
             document.getElementById('brainstorming-view').classList.add('hidden');
             document.getElementById('theme-view').classList.add('hidden');
@@ -1171,7 +1153,7 @@
 
             // 2. Render Module Audit List
             const auditList = document.getElementById('progress-audit-list');
-            auditList.innerHTML = satData.map((m, i) => {
+            auditList.innerHTML = satData.map(m => {
                 const isMastered = masteredModules.has(m.id);
                 return `
                     <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition">
@@ -1184,7 +1166,7 @@
                                 <p class="text-xs text-slate-500">${m.category}</p>
                             </div>
                         </div>
-                        <button onclick="window.loadModule(${i})" class="text-xs font-bold text-blue-600 hover:text-blue-800 px-3 py-1 rounded-full bg-blue-50 hover:bg-blue-100">
+                        <button onclick="loadModule(${satData.indexOf(m)})" class="text-xs font-bold text-blue-600 hover:text-blue-800 px-3 py-1 rounded-full bg-blue-50 hover:bg-blue-100">
                             Review &rarr;
                         </button>
                     </div>
@@ -1194,20 +1176,16 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        window.resetProgress = function() {
+        function resetProgress() {
             if(confirm("Are you sure you want to reset all progress?")) {
                 masteredModules.clear();
-                // Optimistic update
                 updateProgress();
-                window.loadProgress(); 
-                renderSidebar();
-                renderMobileNav();
-                // Persist
-                saveProgress();
+                loadProgress(); // Re-render current view
+                renderSidebar(); // Update ticks
             }
         }
 
-        window.loadModule = function(index) {
+        function loadModule(index) {
             currentModuleIndex = index;
             currentQuestionIndex = 0;
             const data = satData[index];
@@ -1253,57 +1231,6 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        window.toggleMastered = function(id) {
-            if (masteredModules.has(id)) masteredModules.delete(id);
-            else masteredModules.add(id);
-            updateMasteredBtn(id);
-            renderSidebar();
-            renderMobileNav();
-            updateProgress();
-            saveProgress();
-        }
-
-        // --- RENDER HELPERS ---
-        function renderGuideTable() {
-            const tbody = document.getElementById('guide-table-body');
-            tbody.innerHTML = satData.map(m => `
-                <tr class="hover:bg-slate-50">
-                    <td class="px-6 py-4 font-medium text-slate-500">${m.category}</td>
-                    <td class="px-6 py-4 font-bold text-slate-800">${m.title.replace(/^\d+\.\s/,'')}</td>
-                    <td class="px-6 py-4">${m.strategyData.tests}</td>
-                    <td class="px-6 py-4"><ul class="list-disc pl-4 text-xs space-y-1">${m.strategyData.must.map(i=>`<li>${i}</li>`).join('')}</ul></td>
-                    <td class="px-6 py-4 text-rose-600 font-medium text-xs"><ul class="list-disc pl-4 space-y-1">${m.strategyData.traps.map(i=>`<li>${i}</li>`).join('')}</ul></td>
-                </tr>
-            `).join('');
-        }
-
-        function renderSidebar() {
-            const nav = document.getElementById('sidebar-nav');
-            nav.innerHTML = satData.map((m, i) => `
-                <button onclick="window.loadModule(${i})" class="theme-btn w-full text-left px-4 py-3 rounded-md text-sm font-medium text-slate-600 border-l-4 border-transparent transition-all mb-1 hover:bg-slate-100 flex justify-between">
-                    <span class="truncate">${m.title}</span>
-                    ${masteredModules.has(m.id) ? '<span class="text-emerald-500">✓</span>' : ''}
-                </button>
-            `).join('');
-        }
-
-        function renderMobileNav() {
-            const select = document.getElementById('mobile-nav');
-            select.innerHTML = '<option disabled selected>Select Module</option>' + 
-                '<option value="master">📘 Master Guide</option>' +
-                '<option value="progress">📊 Progress Tracker</option>' +
-                satData.map((m, i) => `<option value="${i}">${masteredModules.has(m.id) ? '✓ ' : ''}${m.title}</option>`).join('') +
-                '<option value="brainstorming">✨ Essay Ideas</option>';
-            
-            select.onchange = (e) => {
-                const val = e.target.value;
-                if(val === 'brainstorming') window.loadBrainstorming();
-                else if(val === 'master') window.loadMasterGuide();
-                else if(val === 'progress') window.loadProgress();
-                else window.loadModule(parseInt(val));
-            };
-        }
-
         // --- QUIZ LOGIC ---
         function renderQuestion() {
             const module = satData[currentModuleIndex];
@@ -1335,6 +1262,8 @@
                 btn.onclick = () => checkAnswer(i, btn);
                 optsContainer.appendChild(btn);
             });
+
+            document.getElementById('next-question-btn').onclick = nextQuestion;
         }
 
         function getDifficultyColor(diff) {
@@ -1365,15 +1294,24 @@
             feedbackArea.classList.remove('hidden');
         }
 
-        window.nextQuestion = function() {
+        function nextQuestion() {
             const module = satData[currentModuleIndex];
             if (currentQuestionIndex < module.questions.length - 1) {
                 currentQuestionIndex++;
                 renderQuestion();
             } else {
                 alert("Module Complete! Marking as Mastered.");
-                window.toggleMastered(module.id);
+                toggleMastered(module.id);
             }
+        }
+
+        function toggleMastered(id) {
+            if (masteredModules.has(id)) masteredModules.delete(id);
+            else masteredModules.add(id);
+            updateMasteredBtn(id);
+            renderSidebar();
+            // Note: We don't re-render mobile nav here to avoid closing it if it were open, but simple apps might.
+            updateProgress();
         }
 
         function updateMasteredBtn(id) {
@@ -1417,8 +1355,7 @@
             });
         }
 
-        // Start App
-        initApp();
+        init();
     </script>
 </body>
 </html>
